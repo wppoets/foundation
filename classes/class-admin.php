@@ -1,6 +1,6 @@
 <?php namespace WPPoets;
 /**
- * Copyright (c) 2014, WP Poets and/or its affiliates <copyright@wppoets.com>
+ * Copyright (c) 2014, WP Poets and/or its affiliates <wppoets@gmail.com>
  * All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
@@ -18,27 +18,43 @@
  */
 /**
  * @author Michael Stutz <michaeljstutz@gmail.com>
- * @version 1.0.1
+ * @version 1.0.5
  */
 abstract class Admin {
 
+	/** Used to enable the action admin_menu */
+	const ENABLE_ADMIN_MENU = FALSE;
+
+	/** Used to enable the action admin_init */
+	const ENABLE_ADMIN_INIT = FALSE;
+
+	/** Used to enable the action save_post */
+	const ENABLE_SAVE_POST = FALSE;
+
 	/** Used to set if the class uses action_save_post */
-	const HAS_SAVE_POST = FALSE;
+	const ENABLE_SAVE_POST_AUTOSAVE_CHECK = FALSE;
+
+	/** Used to set if the class uses action_save_post */
+	const ENABLE_SAVE_POST_REVISION_CHECK = FALSE;
+
+	/** Used to set if the class uses action_save_post */
+	const ENABLE_SAVE_POST_CHECK_CAPABILITIES_CHECK = FALSE;
 
 	/** Used to enable the admin footer */
-	const ENABLE_SINGLE_SAVE_POST = FALSE;
+	const ENABLE_SAVE_POST_SINGLE_RUN = FALSE;
+
+	/** Used to set if the class uses action_save_post */
+	const SAVE_POST_CHECK_CAPABILITIES = '';
 
 	/** Used to keep the init state of the class */
 	static private $_initialized = array();
 	
-	/** Used to store the plugin options */
+	/** Used to store the class options */
 	static private $_options = array();
-
-	/** Used to store the plugin settings */
-	static private $_settings = array();
 
 	/** Used to store if save_post has run before */
 	static private $_save_post = array();
+
 	/**
 	 * Initialization point for the static class
 	 * 
@@ -50,8 +66,14 @@ abstract class Admin {
 			return; 
 		}
 		static::set_options( $options );
-		if ( static::HAS_SAVE_POST ) {
+		if ( static::ENABLE_SAVE_POST ) {
 			add_action( 'save_post', array( $static_instance, 'action_save_post' ) );
+		}		
+		if ( static::ENABLE_ADMIN_INIT ) {
+			add_action( 'admin_init', array( $static_instance, 'action_admin_init' ) );
+		}
+		if ( static::ENABLE_ADMIN_MENU ) {
+			add_action( 'admin_menu', array( $static_instance, 'action_admin_menu' ) );
 		}
 		self::$_initialized[ $static_instance ] = true;
 	}
@@ -71,8 +93,6 @@ abstract class Admin {
 		}
 		self::$_options[ $static_instance ] = wpp_array_merge_nested(
 			array( //Default options
-				'admin_pages' => array(),
-				'admin_menus' => array(),
 			),
 			( $merge ) ? self::$_options[ $static_instance ] : array(), //if merge, merge the excisting values
 			(array) $options //Added options
@@ -90,26 +110,51 @@ abstract class Admin {
 	}
 
 	/**
+	 * WordPress action for admin_init
+	 * 
+	 * @return void No return value
+	 */
+	static public function action_admin_init( ) {
+		// Placeholder for child
+	}
+
+	/**
+	 * WordPress action for admin_menu
+	 * 
+	 * @return void No return value
+	 */
+	static public function action_admin_menu( ) {
+		// Placeholder for child
+	}
+
+	/**
 	 * WordPress action for saving the post
 	 * 
 	 * @return void No return value
 	 */
 	static public function action_save_post( $post_id ) {
-		if ( ! current_user_can( 'edit_page', $post_id ) ) {  // Check user can edit
+		if ( static::ENABLE_SAVE_POST_AUTOSAVE_CHECK && defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE )  {  // Check if is auto saving
 			return; 
 		}
-		if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE )  {  // Check if is auto saving
+		if ( static::ENABLE_SAVE_POST_CHECK_CAPABILITIES_CHECK ) {
+			foreach ( explode( ',', static::SAVE_POST_CHECK_CAPABILITIES ) as $capability ) {
+				if ( ! empty( $capability ) && ! current_user_can( $capability, $post_id ) ) {  // Check user can edit
+					return;
+				}
+			}
+		}
+		if ( static::ENABLE_SAVE_POST_REVISION_CHECK && wp_is_post_revision( $post_id ) ) {  // Check if is revision
 			return; 
 		}
-		if ( wp_is_post_revision( $post_id ) ) {  // Check if is revision
-			return; 
-		}
-		if ( static::ENABLE_SINGLE_SAVE_POST ) {
+		if ( static::ENABLE_SAVE_POST_SINGLE_RUN ) {
 			$static_instance = get_called_class();
-			if ( ! empty( self::$_save_post[ $static_instance ] ) ) { 
+			if ( ! empty( self::$_save_post[ $static_instance ][ $post_id ] ) ) { 
 				return; 
 			}
-			self::$_save_post[ $static_instance ] = TRUE;
+			if ( ! isset( self::$_save_post[ $static_instance ] ) ) {
+				self::$_save_post[ $static_instance ] = array();
+			}
+			self::$_save_post[ $static_instance ][ $post_id ] = TRUE;
 		}
 		return TRUE;
 
