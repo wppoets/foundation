@@ -18,7 +18,6 @@
  */
 /**
  * @author Michael Stutz <michaeljstutz@gmail.com>
- * @version 1.0.2
  */
 abstract class Theme {
 

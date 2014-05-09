@@ -18,7 +18,6 @@
  */
 /**
  * @author Michael Stutz <michaeljstutz@gmail.com>
- * @version 1.0.8
  */
 abstract class Meta_Box {
 
@@ -29,7 +28,7 @@ abstract class Meta_Box {
 	const TITLE = 'WPP Meta Box';
 
 	/** Used to store the asset version */
-	const ASSET_VER = FALSE;
+	const ASSET_VERSION_NUM = FALSE;
 
 	/** Used to store the text domain */
 	const TEXT_DOMAIN = '';
