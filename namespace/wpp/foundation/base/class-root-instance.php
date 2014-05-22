@@ -42,6 +42,27 @@ abstract class Root_Instance extends Static_Instance {
 	/** Used to enable shortcodes */
 	const ENABLE_SHORTCODES = FALSE;
 
+	/** Used to enable shortcodes */
+	const ENABLE_SCRIPTS = FALSE;
+
+	/** Used to enable shortcodes */
+	const ENABLE_STYLES = FALSE;
+
+	/** Used to enable action */
+	const ENABLE_ACTION_INIT = FALSE;
+
+	/** Used to enable action */
+	const ENABLE_ACTION_WP_HEAD = FALSE;
+
+	/** Used to enable filter */
+	const ENABLE_FILTER_WP_TITLE = FALSE;
+
+	/** Used to enable filter */
+	const FILTER_WP_TITLE_PRIORITY = 10;
+
+	/** Used to enable filter */
+	const ENABLE_LINK_MANAGER = FALSE;
+
 	/**
 	 * Set method for the options
 	 *  
@@ -81,11 +102,29 @@ abstract class Root_Instance extends Static_Instance {
 	 */
 	static public function init_before_initialized() {
 		parent::init_before_initialized();
+		if ( static::ENABLE_ACTION_INIT ) {
+			add_action( 'init', array( static::current_instance(), 'action_init' ) ); //Wordpress init action
+		}
+		if ( static::ENABLE_ACTION_WP_HEAD ) {
+			add_action( 'wp_head', array( static::current_instance(), 'action_wp_head' ) ); //Wordpress init action
+		}
+		if ( static::ENABLE_FILTER_WP_TITLE ) {
+			add_filter( 'wp_title', array( static::current_instance(), 'filter_wp_title' ), static::FILTER_WP_TITLE_PRIORITY, 2 );
+		}
 		if ( static::ENABLE_SHORTCODES ) {
 			static::init_shortcodes();
 		}
 		if ( static::ENABLE_CONTENT_TYPES ) {
 			static::init_content_types();
+		}
+		if ( static::ENABLE_LINK_MANAGER ) {
+			add_filter( 'pre_option_link_manager_enabled', '__return_true' ); // Re-enable the link manager
+		}
+		if ( static::ENABLE_SCRIPTS ) {
+			add_action( 'wp_enqueue_scripts', array( static::current_instance(), 'init_scripts' ) );
+		}
+		if ( static::ENABLE_STYLES ) {
+			add_action( 'wp_enqueue_scripts', array( static::current_instance(), 'init_styles' ) );
 		}
 		if ( is_admin() ) {
 			if ( static::ENABLE_ADMIN_CONTROLLERS ) {
@@ -159,6 +198,24 @@ abstract class Root_Instance extends Static_Instance {
 	}
 
 	/**
+	 * Init method for the scripts
+	 *
+	 * @return void No return value
+	 */
+	static public function init_scripts() {
+		static::enqueue_scripts( static::get_scripts() );
+	}
+
+	/**
+	 * Init method for the styles
+	 *
+	 * @return void No return value
+	 */
+	static public function init_styles() {
+		static::enqueue_styles( static::get_styles() );
+	}
+
+	/**
 	 * Init method for a static class
 	 * 
 	 * The method loops through the preconfigured admin_controllers 
@@ -181,6 +238,28 @@ abstract class Root_Instance extends Static_Instance {
 		} else {
 			static::error( __METHOD__, "Static class ( $class ) did not exists and or have the required init method", E_USER_WARNING );
 		}
+	}
+
+	/*
+	 * 
+	 */
+	static public function action_init() {
+		//Place holder
+	}
+
+	/*
+	 * 
+	 */
+	static public function action_wp_head() {
+		//Place holder
+	}
+
+	/*
+	 * 
+	 */
+	static public function filter_wp_title( $title, $sep ) {
+		//Place holder
+		return $title;
 	}
 
 	/**
@@ -360,10 +439,10 @@ abstract class Root_Instance extends Static_Instance {
 	static public function enqueue_scripts( $scripts = array() ) {
 		foreach ( (array) $scripts as $script_id => $script ) {
 			$url = '';
-			if ( ! empty( $style['url'] ) ) {
-				$url = $style['url'];
-			} else if ( ! empty( $style['ezurl'] ) ) {
-				$url = static::get_base_url( 'scripts' ) . $style['ezurl'] . static::get_extention('js');
+			if ( ! empty( $script['url'] ) ) {
+				$url = $script['url'];
+			} else if ( ! empty( $script['ezurl'] ) ) {
+				$url = static::get_base_url( 'scripts' ) . $script['ezurl'] . static::get_extention('js');
 			}
 			if ( ! empty( $url ) ) {
 				$requires = empty( $script['requires'] ) ? NULL : $script['requires'];

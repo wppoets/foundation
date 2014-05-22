@@ -245,24 +245,4 @@ abstract class Child_Instance extends Static_Instance {
 		}
 	}
 
-	/**
-	 * Method
-	 * 
-	 * @return void No return value
-	 */
-	static public function get_scripts() {
-		$config = static::get_config();
-		return ( empty( $config[ 'scripts' ] ) ? array() : (array) $config[ 'scripts' ] );
-	}
-
-	/**
-	 * Method
-	 * 
-	 * @return void No return value
-	 */
-	static public function get_styles() {
-		$config = static::get_config();
-		return ( empty( $config[ 'styles' ] ) ? array() : (array) $config[ 'styles' ] );
-	}
-
 }

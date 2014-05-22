@@ -97,6 +97,8 @@ abstract class Static_Instance {
 				'text_domain' => '',
 				'asset_version' => '',
 				'ajax_suffix' => static::ID,
+				'scripts' => array(),
+				'styles' => array(),
 			),
 			( $merge ) ? self::$_config[ $static_instance ] : array(), //if merge, merge the excisting values
 			(array) $config //Added config
@@ -145,6 +147,26 @@ abstract class Static_Instance {
 	static public function get_asset_version() {
 		$config = static::get_config();
 		return $config['asset_version'];
+	}
+
+	/**
+	 * Method
+	 * 
+	 * @return void No return value
+	 */
+	static public function get_scripts() {
+		$config = static::get_config();
+		return ( empty( $config[ 'scripts' ] ) ? array() : (array) $config[ 'scripts' ] );
+	}
+
+	/**
+	 * Method
+	 * 
+	 * @return void No return value
+	 */
+	static public function get_styles() {
+		$config = static::get_config();
+		return ( empty( $config[ 'styles' ] ) ? array() : (array) $config[ 'styles' ] );
 	}
 
 	/**
