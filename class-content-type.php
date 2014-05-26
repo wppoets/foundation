@@ -1,4 +1,4 @@
-<?php namespace WPP\Foundation_Namespace_Base;
+<?php namespace <%= php_namespace_base_classes %>;
 /**
  * Copyright (c) 2014, WP Poets and/or its affiliates <wppoets@gmail.com>
  * All rights reserved.
