@@ -21,56 +21,40 @@
  */
 abstract class Shortcode extends Child_Instance {
 
-	/** Used as the ID of the instance */
-	const ID = 'wpp-shortcode';
-
-	/** Used to store the form prefex */
-	const HTML_FORM_PREFIX = 'wpp_shortcode'; // should only use [a-z0-9_]
-
-	/** Used to store the form prefex */
-	const HTML_CLASS_PREFIX = 'wpp-shortcode-'; // should only use [a-z0-9_-]
-
-	/** Used to store the form prefex */
-	const HTML_ID_PREFIX = 'wpp-shortcode-'; // should only use [a-z0-9_-]
-
 	/**
-	 * Initialization point for the static class
+	 * Initialization point for the configuration
 	 * 
 	 * @return void No return value
 	 */
-	static public function init( $config = array(), $merge = FALSE ) {
-		if ( static::is_initialized() ) { 
-			return; 
-		}
-		parent::init( static::array_merge_nested( 			
-			array( //Default config
-				'shortcode_tag' => static::ID,
-				'enable_filter_atts' => FALSE,
-			),
-			(array) $config //Added config
-		), $merge );
+	static public function init_config() {
+		parent::init_config();
+		$config = static::get_config_instance();
+		$current_instance = static::current_instance();
+		$config::set_default( 'short_code_tag', '', $current_instance );
+		$config::set_default( 'enable_filter_atts', FALSE, $current_instance );
 	}
 
 	/**
-	 * Method called after initialized is set to true
+	 * Init config check
 	 * 
 	 * @return void No return value
 	 */
-	static public function init_after_initialized() {
-		add_shortcode( static::shortcode_tag(), array( static::current_instance(), 'action_shortcode' ) );
-		if ( static::is_filter_atts() ) {
-			add_filter( "shortcode_atts_" . static::shortcode_tag(), array( static::current_instance(), 'filter_shortcode_atts' ), 10, 3 );
-		}
+	static public function init_check_config( $settings = array() ) {
+		parent::init_check_config( array_unique ( array_merge( $settings, array(
+			'short_code_tag',
+		) ) ) );
 	}
 
 	/**
-	 * Method to find if filter atts is enabled
+	 * Method for after init has completed
 	 * 
 	 * @return void No return value
 	 */
-	static public function shortcode_tag() {
-		$config = static::get_config();
-		return ( empty( $config[ 'shortcode_tag' ] ) ? static::ID : $config[ 'shortcode_tag' ] );
+	static public function init_done() {
+		add_shortcode( static::get_config('short_code_tag'), array( static::current_instance(), 'action_shortcode' ) );
+		if ( static::get_config('enable_filter_atts') ) {
+			add_filter( "shortcode_atts_" . static::get_config('short_code_tag'), array( static::current_instance(), 'filter_shortcode_atts' ), 10, 3 );
+		}
 	}
 
 	/**
@@ -79,8 +63,7 @@ abstract class Shortcode extends Child_Instance {
 	 * @return void No return value
 	 */
 	static public function is_filter_atts() {
-		$config = static::get_config();
-		return ( empty( $config[ 'enable_filter_atts' ] ) ? FALSE : TRUE );
+		return ( empty( static::get_config('enable_filter_atts') ) ? FALSE : TRUE );
 	}
 
 	/**
@@ -115,4 +98,5 @@ abstract class Shortcode extends Child_Instance {
 		// Holder
 		return $out;
 	}
+
 }

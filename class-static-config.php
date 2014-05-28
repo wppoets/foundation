@@ -28,13 +28,40 @@ abstract class Static_Config extends Static_Class {
 	static private $_values = array();
 
 	/**
+	 * Initialization point for the class
 	 * 
+	 * @return string Returns the current class instance
+	 */
+	static public function init() {
+		if ( static::is_initialized() ) { 
+			return static::current_instance();
+		}
+		self::$_defaults[ static::current_instance() ] = array();
+		self::$_values[ static::current_instance() ] = array();
+		parent::init();
+		return static::current_instance();
+	}
+
+	/**
+	 * Init point for the configuration
+	 * 
+	 * @return void No return value
+	 */
+	static public function init_config() {
+		//Prevent the defualt
+	}
+
+	/**
+	 * $current_instance = static::current_instance();
 	 */
 	static public function set_default( $key, $value, $instance = 'global_instance' ) {
-		if ( ! isset( self::$_defaults[ $instance ] ) ) {
-			self::$_defaults[ $instance ] = array();
+		if ( ! isset( self::$_defaults[ static::current_instance() ][ $instance ] ) ) {
+			self::$_defaults[ static::current_instance() ][ $instance ] = array();
 		}
-		self::$_defaults[ $instance ][ $key ] = $value;
+		if ( ! isset( self::$_defaults[ $instance ] ) ) {
+			self::$_defaults[ static::current_instance() ][ $instance ] = array();
+		}
+		self::$_defaults[ static::current_instance() ][ $instance ][ $key ] = $value;
 	}
 
 	/**
@@ -42,7 +69,7 @@ abstract class Static_Config extends Static_Class {
 	 */
 	static public function get_default( $key, $instance = 'global_instance' ) {
 		if ( static::has_default( $key, $instance ) ) {
-			return self::$_defaults[ $instance ][ $key ];
+			return self::$_defaults[ static::current_instance() ][ $instance ][ $key ];
 		}
 		return NULL;
 	}
@@ -51,17 +78,17 @@ abstract class Static_Config extends Static_Class {
 	 * 
 	 */
 	static public function has_default( $key, $instance = 'global_instance' ) {
-		return isset( self::$_defaults[ $instance ][ $key ] );
+		return isset( self::$_defaults[ static::current_instance() ][ $instance ][ $key ] );
 	}
 
 	/**
 	 * 
 	 */
 	static public function set( $key, $value, $instance = 'global_instance' ) {
-		if ( ! isset( self::$_values[ $instance ] ) ) {
-			self::$_values[ $instance ] = array();
+		if ( ! isset( self::$_values[ static::current_instance() ][ $instance ] ) ) {
+			self::$_values[ static::current_instance() ][ $instance ] = array();
 		}
-		self::$_values[ $instance ][ $key ] = $value;
+		self::$_values[ static::current_instance() ][ $instance ][ $key ] = $value;
 	}
 
 	/**
@@ -69,7 +96,7 @@ abstract class Static_Config extends Static_Class {
 	 */
 	static public function get( $key, $instance = 'global_instance' ) {
 		if ( static::has( $key, $instance ) ) {
-			return self::$_values[ $instance ][ $key ];
+			return self::$_values[ static::current_instance() ][ $instance ][ $key ];
 		}
 		return static::get_default( $key, $instance );
 	}
@@ -78,6 +105,39 @@ abstract class Static_Config extends Static_Class {
 	 * 
 	 */
 	static public function has( $key, $instance = 'global_instance' ) {
-		return isset( self::$_values[ $instance ][ $key ] );
+		return isset( self::$_values[ static::current_instance() ][ $instance ][ $key ] );
+	}
+
+	/**
+	 * Get method
+	 *  
+	 * @return string Returns static class name
+	 */
+	static public function get_config_instance() {
+		return static::current_instance();
+	}
+
+	/**
+	 * Get method for finding missing required fields
+	 *  
+	 * @return array Returns an array of missing keys to empty values
+	 */
+	static public function get_missing_required( $required, $instance = 'global_instance' ) {
+		$required = (array) $required;
+		foreach ( $required as $id => $key ) {
+			$test_value_1 = static::get( $key, $instance );
+			$test_value_2 = static::get( $key );
+			if ( ! empty( $test_value_1 ) ) {
+				unset( $required[ $id ] );
+			} else if ( ! empty( $test_value_2 ) ) {
+				unset( $required[ $id ] );
+			}
+			unset( $test_value );
+		}
+		$required = array_values( $required );
+		if ( ! empty( $required ) ) {
+			static::debug(__METHOD__, self::$_values);
+		}
+		return $required;
 	}
 }

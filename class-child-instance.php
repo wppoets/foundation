@@ -19,72 +19,51 @@
 /**
  * @author Michael Stutz <michaeljstutz@gmail.com>
  */
-abstract class Child_Instance extends Static_Instance {
-
-	/** Used as the ID of the instance */
-	const ID = 'wpp-child-instance';
-
-	/** Used to store the form prefex */
-	const HTML_FORM_PREFIX = 'wpp_child_instance'; // should only use [a-z0-9_]
-
-	/** Used to store the form prefex */
-	const HTML_CLASS_PREFIX = 'wpp-child-instance-'; // should only use [a-z0-9_-]
-
-	/** Used to store the form prefex */
-	const HTML_ID_PREFIX = 'wpp-child-instance-'; // should only use [a-z0-9_-]
-
-	/** Used to enable the action save_post */
-	const ENABLE_SAVE_POST = FALSE;
-
-	/** Used to set if the class uses action_save_post */
-	const ENABLE_SAVE_POST_NONCE_CHECK = FALSE;
-
-	/** Used to set if the class uses action_save_post */
-	const ENABLE_SAVE_POST_AUTOSAVE_CHECK = FALSE;
-
-	/** Used to set if the class uses action_save_post */
-	const ENABLE_SAVE_POST_REVISION_CHECK = FALSE;
-
-	/** Used to set if the class uses action_save_post */
-	const ENABLE_SAVE_POST_CHECK_CAPABILITIES_CHECK = FALSE;
-
-	/** Used to enable the admin footer */
-	const ENABLE_SAVE_POST_SINGLE_RUN = FALSE;
-
-	/** Used to set if the class uses action_save_post */
-	const SAVE_POST_CHECK_CAPABILITIES = '';
+abstract class Child_Instance extends Instance {
 
 	/** Used to store if save_post has run before */
 	static private $_save_post = array();
 
 	/**
-	 * Method called before initialized is set to true
+	 * Initialization point for the configuration
 	 * 
 	 * @return void No return value
 	 */
-	static public function init_before_initialized() {
-		parent::init_before_initialized();
-		if ( static::ENABLE_SAVE_POST ) {
-			add_action( 'save_post', array( static::current_instance(), 'action_save_post' ) );
-		}
+	static public function init_config() {
+		parent::init_config();
+		$current_instance = static::current_instance();
+		$config = static::get_config_instance();
+		$config::set_default( 'root_instance', '', $current_instance );
+		$config::set_default( 'enable_save_post', FALSE, $current_instance );
+		$config::set_default( 'enable_save_post_nonce_check', FALSE, $current_instance );
+		$config::set_default( 'enable_save_post_autosave_check', FALSE, $current_instance );
+		$config::set_default( 'enable_save_post_revision_check', FALSE, $current_instance );
+		$config::set_default( 'enable_save_post_check_capabilities_check', FALSE, $current_instance );
+		$config::set_default( 'enable_save_post_single_run', FALSE, $current_instance );
+		$config::set_default( 'save_post_check_capabilities',array(), $current_instance );
 	}
 
 	/**
-	 * Set method for the config
-	 *  
-	 * @param string|array $config An array containing the config
-	 * @param boolean $merge Should the current config be merged in?
+	 * Init config check
 	 * 
 	 * @return void No return value
 	 */
-	static public function set_config( $config, $merge = FALSE ) {
-		return parent::set_config( static::array_merge_nested(
-			array( //Default config
-				'scripts' => array(),
-				'styles' => array(),
-			),
-			(array) $config //Added config
-		), $merge );
+	static public function init_check_config( $settings = array() ) {
+		parent::init_check_config( array_unique ( array_merge( $settings, array(
+			'root_instance',
+		) ) ) );
+	}
+	
+	/**
+	 * Method for after init has completed
+	 * 
+	 * @return void No return value
+	 */
+	static public function init_done() {
+		parent::init_done();
+		if ( static::get_config('enable_save_post') ) {
+			add_action( 'save_post', array( static::current_instance(), 'action_save_post' ) );
+		}
 	}
 
 	/**
@@ -93,31 +72,31 @@ abstract class Child_Instance extends Static_Instance {
 	 * @return void No return value
 	 */
 	static public function action_save_post( $post_id ) {
-		if ( static::ENABLE_SAVE_POST_AUTOSAVE_CHECK && defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE )  {  // Check if is auto saving
+		if ( static::get_config('enable_save_post_autosave_check') && defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE )  {  // Check if is auto saving
 			return; 
 		}
-		if ( static::ENABLE_SAVE_POST_REVISION_CHECK && wp_is_post_revision( $post_id ) ) {  // Check if is revision
+		if ( static::get_config('enable_save_post_revision_check') && wp_is_post_revision( $post_id ) ) {  // Check if is revision
 			return; 
 		}
-		if ( static::ENABLE_SAVE_POST_SINGLE_RUN ) {
-			$static_instance = get_called_class();
-			if ( ! empty( self::$_save_post[ $static_instance ][ $post_id ] ) ) { 
+		$current_instance = static::current_instance();
+		if ( static::get_config('enable_save_post_single_run') ) {
+			if ( ! empty( self::$_save_post[ $current_instance ][ $post_id ] ) ) { 
 				return; 
 			}
-			if ( ! isset( self::$_save_post[ $static_instance ] ) ) {
-				self::$_save_post[ $static_instance ] = array();
+			if ( ! isset( self::$_save_post[ $current_instance ] ) ) {
+				self::$_save_post[ $current_instance ] = array();
 			}
-			self::$_save_post[ $static_instance ][ $post_id ] = TRUE;
+			self::$_save_post[ $current_instance ][ $post_id ] = TRUE;
 		}
-		if ( static::ENABLE_SAVE_POST_CHECK_CAPABILITIES_CHECK ) {
-			foreach ( explode( ',', static::SAVE_POST_CHECK_CAPABILITIES ) as $capability ) {
+		if ( static::get_config('enable_save_post_check_capabilities_check') ) {
+			foreach ( (array) static::get_config('save_post_check_capabilities') as $capability ) {
 				if ( ! empty( $capability ) && ! current_user_can( $capability, $post_id ) ) {  // Check user has capability to continue
 					return;
 				}
 			}
 		}
-		if ( static::ENABLE_SAVE_POST_NONCE_CHECK 
-			&& ! wp_verify_nonce( filter_input( INPUT_POST, static::HTML_FORM_PREFIX . '_wpnonce', FILTER_SANITIZE_STRING ), static::current_instance() ) 
+		if ( static::get_config('enable_save_post_nonce_check')
+			&& ! wp_verify_nonce( filter_input( INPUT_POST, static::get_config('html_form_prefix') . '_wpnonce', FILTER_SANITIZE_STRING ), $current_instance ) 
 			) {
 			return;
 		}
@@ -158,56 +137,6 @@ abstract class Child_Instance extends Static_Instance {
 	}
 
 	/**
-	 * Method for the base_url from key
-	 *  
-	 * @return string Returns the base url
-	 */
-	static public function get_base_url( $key = '' ) {
-		$root_instance = static::get_root_instance();
-		return $root_instance::get_base_url( $key );
-	}
-
-	/**
-	 * Method for the extention from key
-	 *  
-	 * @return string Returns the base url
-	 */
-	static public function get_extention( $key ) {
-		$root_instance = static::get_root_instance();
-		return $root_instance::get_extention( $key );
-	}
-
-	/**
-	 * Method for the default option key
-	 *  
-	 * @return string Returns the base url
-	 */
-	static public function get_default_option_key() {
-		$root_instance = static::get_root_instance();
-		return $root_instance::get_default_option_key();
-	}
-
-	/**
-	 * Method for the metadata key prefix
-	 *  
-	 * @return string Returns the metadata key prefix
-	 */
-	static public function get_metadata_key_prefix() {
-		$root_instance = static::get_root_instance();
-		return $root_instance::get_metadata_key_prefix();
-	}
-
-	/**
-	 * Method for the metadata key
-	 *  
-	 * @return string Returns the metadata key
-	 */
-	static public function get_metadata_key( $key ) {
-		$root_instance = static::get_root_instance();
-		return $root_instance::get_metadata_key( $key );
-	}
-
-	/**
 	 * Method for returning list of post types
 	 *
 	 * @param boolean $include_all Should we include all post types?
@@ -237,12 +166,29 @@ abstract class Child_Instance extends Static_Instance {
 	 * @return string Returns the root instance name
 	 */
 	static public function get_root_instance() {
-		$config = static::get_config();
-		if ( ! empty( $config[ 'root_instance' ] ) ) {
-			return $config[ 'root_instance' ];
+		$root_instance = static::get_config('root_instance');
+		if ( ! empty( $root_instance ) ) {
+			return $root_instance;
 		} else {
 			static::error( __METHOD__, 'Empty root instance' );
 		}
 	}
 
+	/**
+	 * Method for enqueuing scripts
+	 * 
+	 * @return string Returns the root instance name
+	 */
+	static public function enqueue_scripts() {
+		
+	}
+
+	/**
+	 * Method for enqueuing styles
+	 * 
+	 * @return string Returns the root instance name
+	 */
+	static public function enqueue_styles() {
+
+	}
 }

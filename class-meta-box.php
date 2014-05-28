@@ -21,110 +21,37 @@
  */
 abstract class Meta_Box extends Child_Instance {
 
-	/** Used to set the meta-box ID */
-	const ID = 'wpp-meta-box';
-
-	/** Used to store the meta-box title */
-	const DISPLAY_TITLE = 'WPP Meta Box';
-
-	/** Used to store waht context the meta-box should be located */
-	const DISPLAY_CONTEXT = 'advanced'; //('normal', 'advanced', or 'side')
-
-	/** Used to store what priority the meta-box should have */
-	const DISPLAY_PRIORITY = 'default'; //('high', 'core', 'default' or 'low')
-
-	/** Used to store the form prefex */
-	const HTML_FORM_PREFIX = 'wpp_meta_box'; // should only use [a-z0-9_]
-
-	/** Used to store the form prefex */
-	const HTML_CLASS_PREFIX = 'wpp-meta-box-'; // should only use [a-z0-9_-]
-
-	/** Used to store the form prefex */
-	const HTML_ID_PREFIX = 'wpp-meta-box-'; // should only use [a-z0-9_-]
-
-	/** Used to enable ajax callbacks */
-	const ENABLE_AJAX = FALSE;
-
-	/** Used to enable enqueue_media function */
-	const ENABLE_ENQUEUE_MEDIA = FALSE;
-
-	/** Used to enable the admin footer */
-	const ENABLE_ADMIN_FOOTER = FALSE;
-
-	/** Used to enable the action admin_init */
-	const ENABLE_ADMIN_INIT = FALSE;
-
-	/** Used to enable the action save_post */
-	const ENABLE_SAVE_POST = FALSE;
-
-	/** Used to set if the class uses action_save_post */
-	const ENABLE_SAVE_POST_NONCE_CHECK = FALSE;
-
-	/** Used to set if the class uses action_save_post */
-	const ENABLE_SAVE_POST_AUTOSAVE_CHECK = FALSE;
-
-	/** Used to set if the class uses action_save_post */
-	const ENABLE_SAVE_POST_REVISION_CHECK = FALSE;
-
-	/** Used to set if the class uses action_save_post */
-	const ENABLE_SAVE_POST_CHECK_CAPABILITIES_CHECK = FALSE;
-
-	/** Used to enable the admin footer */
-	const ENABLE_SAVE_POST_SINGLE_RUN = FALSE;
-
-	/** Used to set if the class uses action_save_post */
-	const SAVE_POST_CHECK_CAPABILITIES = '';
-
 	/**
-	 * Initialization point for the static class
+	 * Initialization point for the configuration
 	 * 
-	 * @param string|array $options An optional array containing the meta box options
-	 *
 	 * @return void No return value
 	 */
-	static public function init( $config = array(), $merge = FALSE ) {
-		static::set_config( $config, TRUE ); //Addes so that no mater if the init as been run before we want to set the options with merge on
-		if ( ! is_admin() || static::is_initialized() ) { 
-			return; 
-		}
-		parent::init( $config, TRUE );
+	static public function init_config() {
+		parent::init_config();
+		$current_instance = static::current_instance();
+		$config = static::get_config_instance();
+		$config::set_default( 'display_title', '', $current_instance );
+		$config::set_default( 'display_content', 'advanced', $current_instance ); //('normal', 'advanced', or 'side')
+		$config::set_default( 'display_priority', 'default', $current_instance ); //('high', 'core', 'default' or 'low')
+		$config::set_default( 'post_types_includes', array(), $current_instance );
+		$config::set_default( 'post_types_excludes', array(), $current_instance );
+		$config::set_default( 'post_types_all', FALSE, $current_instance );
+		$config::set_default( 'enable_enqueue_media', FALSE, $current_instance );
+		$config::set_default( 'enable_admin_footer', FALSE, $current_instance );
+		$config::set_default( 'enable_admin_init', FALSE, $current_instance );
 	}
 
 	/**
-	 * Method called before initialized is set to true
+	 * Method for after init has completed
 	 * 
 	 * @return void No return value
 	 */
-	static public function init_before_initialized() {
-		parent::init_before_initialized();
+	static public function init_done() {
+		parent::init_done();
 		add_action( 'add_meta_boxes', array( static::current_instance(), 'action_add_meta_boxes' ) );
-		if ( static::ENABLE_ADMIN_INIT ) {
+		if ( static::get_config('enable_admin_init') ) {
 			add_action( 'admin_init', array( static::current_instance(), 'action_admin_init' ) );
 		}
-		if ( static::ENABLE_ADMIN_FOOTER ) {
-			add_action( 'admin_footer', array( static::current_instance(), 'action_admin_footer' ) );
-		}
-	}
-
-	/**
-	 * Set method for the options
-	 *  
-	 * @param string|array $config An array containing the config
-	 * @param boolean $merge Should the current config be merged in?
-	 * 
-	 * @return void No return value
-	 */
-	static public function set_config( $config, $merge = FALSE ) {
-		return parent::set_config( static::array_merge_nested(
-			array( //Default options
-				'post_types_includes' => array(),
-				'post_types_excludes' => array(),
-				'post_types_all' => FALSE,
-				'scripts' => array(),
-				'styles' => array(),
-			),
-			(array) $config //Added options
-		), $merge );
 	}
 
 	/**
@@ -133,15 +60,15 @@ abstract class Meta_Box extends Child_Instance {
 	 * @return void No return value
 	 */
 	static public function action_add_meta_boxes() {
-		$post_types = static::post_types( static::is_post_types_all(), static::get_post_types_includes() , static::get_post_types_excludes() );
+		$post_types = static::post_types( static::get_config('post_types_all'), static::get_config('post_types_includes'), static::get_config('post_types_excludes') );
 		foreach ( $post_types as $post_type ) {
 			add_meta_box(
-				static::ID,
-				__( static::DISPLAY_TITLE, static::get_text_domain() ),
+				static::get_config('id'),
+				__( static::get_config('display_title'), static::get_config('text_domain') ),
 				array( static::current_instance(), 'action_meta_box_display' ),
 				$post_type,
-				static::DISPLAY_CONTEXT,
-				static::DISPLAY_PRIORITY
+				static::get_config('display_content'),
+				static::get_config('display_priority')
 			);
 			add_action( "add_meta_boxes_{$post_type}", array( static::current_instance(), 'action_add_meta_boxes_content_type' ) );
 		}
@@ -156,11 +83,11 @@ abstract class Meta_Box extends Child_Instance {
 	 * @return void No return value
 	 */
 	static public function action_add_meta_boxes_content_type() {
-		if ( static::ENABLE_ENQUEUE_MEDIA ) { 
+		if ( static::get_config('enable_enqueue_media') ) { 
 			wp_enqueue_media(); 
 		}
 		add_action( 'admin_enqueue_scripts', array( static::current_instance(), 'action_admin_enqueue_scripts' ) );
-		if ( static::ENABLE_ADMIN_FOOTER ) {
+		if ( static::get_config('enable_admin_footer') ) {
 			add_action( 'admin_footer', array( static::current_instance(), 'action_admin_footer' ) );
 		}
 	}
@@ -171,9 +98,8 @@ abstract class Meta_Box extends Child_Instance {
 	 * @return void No return value
 	 */
 	static public function action_admin_enqueue_scripts() {
-		$root_instance = static::get_root_instance();
-		$root_instance::enqueue_scripts( static::get_scripts() );
-		$root_instance::enqueue_styles( static::get_styles() );
+		static::enqueue_scripts();
+		static::enqueue_styles(); //Because wordpress does not have a admin_enqueue_styless
 	}
 
 	/**
@@ -203,8 +129,8 @@ abstract class Meta_Box extends Child_Instance {
 	 * @return void No return value
 	 */
 	static public function action_meta_box_display( $post, $callback_args ) {
-		if ( static::ENABLE_SAVE_POST_NONCE_CHECK ) {
-			wp_nonce_field( static::current_instance(), static::HTML_FORM_PREFIX . '_wpnonce' );
+		if ( static::get_config('enable_save_post_nonce_check') ) {
+			wp_nonce_field( static::current_instance(), static::get_config('html_form_prefix') . '_wpnonce' );
 		}
 	}
 
@@ -218,45 +144,6 @@ abstract class Meta_Box extends Child_Instance {
 		if ( ! parent::action_save_post( $post_id ) ) {
 			return;
 		}
-	}
-
-	/**
-	 * WordPress action for an ajax call
-	 * 
-	 * @return void No return value
-	 */
-	static public function action_wp_ajax( $data = array() ) {
-		return parent::action_wp_ajax( $data );
-	}
-
-	/**
-	 * Method
-	 * 
-	 * @return void No return value
-	 */
-	static public function get_post_types_includes() {
-		$config = static::get_config();
-		return ( empty( $config[ 'post_types_includes' ] ) ? array() : (array) $config[ 'post_types_includes' ] );
-	}
-
-	/**
-	 * Method
-	 * 
-	 * @return void No return value
-	 */
-	static public function get_post_types_excludes() {
-		$config = static::get_config();
-		return ( empty( $config[ 'post_types_excludes' ] ) ? array() : (array) $config[ 'post_types_excludes' ] );
-	}
-
-	/**
-	 * Method to find if filter atts is enabled
-	 * 
-	 * @return void No return value
-	 */
-	static public function is_post_types_all() {
-		$config = static::get_config();
-		return ( empty( $config[ 'post_types_all' ] ) ? FALSE : TRUE );
 	}
 
 }

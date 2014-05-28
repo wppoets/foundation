@@ -23,6 +23,8 @@ abstract class Static_Class {
 
 	/** Used to keep the state of the class */
 	static private $_initialized = array();
+
+	static private $_config_instance = NULL;
 	
 	/**
 	 * Initialization point for the static class
@@ -33,7 +35,41 @@ abstract class Static_Class {
 		if ( static::is_initialized() ) { 
 			return; 
 		}
+		static::init_config();
+		static::init_check_config();
 		self::$_initialized[ static::current_instance() ] = TRUE;
+		static::init_done();
+	}
+
+	/**
+	 * Init point for the configuration
+	 * 
+	 * @return void No return value
+	 */
+	static public function init_config() {
+		//holder
+	}
+
+	/**
+	 * Init point for the configuration
+	 * 
+	 * @return void No return value
+	 */
+	static public function init_check_config( $settings = array() ) {
+		$config = static::get_config_instance();
+		$missing_config = $config::get_missing_required( $settings, static::current_instance() );
+		if ( ! empty( $missing_config ) ) {
+			static::error( static::current_instance(), 'Required settings are not present (' . implode(', ', $missing_config) . ')' );
+		}
+	}
+
+	/**
+	 * Method for after init has completed
+	 * 
+	 * @return void No return value
+	 */
+	static public function init_done() {
+		//holder
 	}
 
 	/**
@@ -173,5 +209,57 @@ abstract class Static_Class {
 			$formated_message .= $message;
 		}
 		return $formated_message;
+	}
+
+	/**
+	 * Set method for the config instance
+	 *  
+	 * @param string $config The static class name
+	 * 
+	 * @return void No return value
+	 */
+	static public function set_config_instance( $config_instance ) {
+		if ( ! class_exists( $config_instance ) ) {
+			static::error( __METHOD__, $config_instance . ' is not a valid class' );
+		}
+		self::$_config_instance = $config_instance;
+	}
+
+	/**
+	 * Get method for the config instance
+	 *  
+	 * @return string Returns static class name
+	 */
+	static public function get_config_instance() {
+		if ( empty( self::$_config_instance ) ) {
+			static::error( __METHOD__, 'config class instance is null, set_config_instance must be run before get_config_instance' );
+			return;
+		}
+		return self::$_config_instance;
+	}
+
+	/**
+	 * 
+	 */
+	static public function set_config( $key, $value, $instance = NULL ) {
+		$config = static::get_config_instance();
+		if ( empty( $instance ) ) {
+			$instance = static::current_instance();
+		}
+		return $config::set( $key, $value, $instance );
+	}
+
+	/**
+	 * 
+	 */
+	static public function get_config( $key, $instance = NULL ) {
+		$config = static::get_config_instance();
+		if ( empty( $instance ) ) {
+			$instance = static::current_instance();
+		}
+		if ( $config::has( $key, $instance ) ){
+			return $config::get( $key, $instance );
+		} 
+		return $config::get( $key );
 	}
 }

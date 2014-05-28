@@ -19,119 +19,64 @@
 /**
  * @author Michael Stutz <michaeljstutz@gmail.com>
  */
-abstract class Root_Instance extends Static_Instance {
-
-	/** Used as the ID of the instance */
-	const ID = 'wpp-root-instance';
-
-	/** Used as the default option key */
-	const DEFAULT_OPTION_KEY = 'wpp-root-instance';
-
-	/** Used as the default option key */
-	const DEFAULT_OPTION_AUTOLOAD = FALSE;
-
-	/** Used to enable admin controllers */
-	const ENABLE_ADMIN_CONTROLLERS = FALSE;
-
-	/** Used to enable content types */
-	const ENABLE_CONTENT_TYPES = FALSE;
-
-	/** Used to enable meta boxes */
-	const ENABLE_META_BOXES = FALSE;
-
-	/** Used to enable shortcodes */
-	const ENABLE_SHORTCODES = FALSE;
-
-	/** Used to enable shortcodes */
-	const ENABLE_SCRIPTS = FALSE;
-
-	/** Used to enable shortcodes */
-	const ENABLE_STYLES = FALSE;
-
-	/** Used to enable action */
-	const ENABLE_ACTION_INIT = FALSE;
-
-	/** Used to enable action */
-	const ENABLE_ACTION_WP_HEAD = FALSE;
-
-	/** Used to enable filter */
-	const ENABLE_FILTER_WP_TITLE = FALSE;
-
-	/** Used to enable filter */
-	const FILTER_WP_TITLE_PRIORITY = 10;
-
-	/** Used to enable filter */
-	const ENABLE_LINK_MANAGER = FALSE;
+abstract class Root_Instance extends Instance {
 
 	/**
-	 * Set method for the options
-	 *  
-	 * @param string|array $config An array containing the config
-	 * @param boolean $merge Should the current config be merged in?
+	 * Initialization point for the configuration
 	 * 
 	 * @return void No return value
 	 */
-	static public function set_config( $config, $merge = FALSE ) {
-		return parent::set_config( static::array_merge_nested(
-			array( //Default config
-				'admin_controllers' => array(),
-				'admin_controller_configs' => array(),
-				'content_types' => array(),
-				'content_type_configs' => array(),
-				'meta_boxes' => array(),
-				'meta_box_configs' => array(),
-				'shortcodes' => array(),
-				'shortcode_configs' => array(),
-				'base_urls' => array(
-					'base' => '',
-					'scripts' => '',
-					'styles' => '',
-				),
-				'metadata_keys' => array(
-					'prefix' => '_' . str_replace('-', '_', static::ID),
-				),
-			),
-			(array) $config //Added options
-		) );
+	static public function init_config() {
+		parent::init_config();
+		$config = static::get_config_instance();
+		$current_instance = static::current_instance();
+		$config::set_default( 'enable_admin_controllers', FALSE, $current_instance );
+		$config::set_default( 'enable_admin_pages', FALSE, $current_instance );
+		$config::set_default( 'enable_content_types', FALSE, $current_instance );
+		$config::set_default( 'enable_meta_boxes', FALSE, $current_instance );
+		$config::set_default( 'enable_short_codes', FALSE, $current_instance );
+		$config::set_default( 'enable_link_manager', FALSE, $current_instance );
+		$config::set_default( 'enable_action_init', FALSE, $current_instance );
+		$config::set_default( 'enable_action_wp_head', FALSE, $current_instance );
+		$config::set_default( 'enable_filter_wp_title', FALSE, $current_instance );
+		$config::set_default( 'filter_wp_title_priority', 10, $current_instance );
 	}
 
 	/**
-	 * Method called before initialized is set to true
+	 * Method for after init has completed
 	 * 
 	 * @return void No return value
 	 */
-	static public function init_before_initialized() {
-		parent::init_before_initialized();
-		if ( static::ENABLE_ACTION_INIT ) {
+	static public function init_done() {
+		parent::init_done();
+		if ( static::get_config('enable_action_init') ) {
 			add_action( 'init', array( static::current_instance(), 'action_init' ) ); //Wordpress init action
 		}
-		if ( static::ENABLE_ACTION_WP_HEAD ) {
+		if ( static::get_config('enable_action_wp_head') ) {
 			add_action( 'wp_head', array( static::current_instance(), 'action_wp_head' ) ); //Wordpress init action
 		}
-		if ( static::ENABLE_FILTER_WP_TITLE ) {
-			add_filter( 'wp_title', array( static::current_instance(), 'filter_wp_title' ), static::FILTER_WP_TITLE_PRIORITY, 2 );
+		if ( static::get_config('enable_filter_wp_title') ) {
+			add_filter( 'wp_title', array( static::current_instance(), 'filter_wp_title' ), static::get_config('filter_wp_title_priority'), 2 );
 		}
-		if ( static::ENABLE_SHORTCODES ) {
-			static::init_shortcodes();
-		}
-		if ( static::ENABLE_CONTENT_TYPES ) {
-			static::init_content_types();
-		}
-		if ( static::ENABLE_LINK_MANAGER ) {
+		if ( static::get_config('enable_link_manager') ) {
 			add_filter( 'pre_option_link_manager_enabled', '__return_true' ); // Re-enable the link manager
 		}
-		if ( static::ENABLE_SCRIPTS ) {
-			add_action( 'wp_enqueue_scripts', array( static::current_instance(), 'init_scripts' ) );
+		$config = static::get_config_instance();
+		if ( static::get_config('enable_short_codes') ) {
+			static::init_array_of_classes( $config::get_short_codes() );
 		}
-		if ( static::ENABLE_STYLES ) {
-			add_action( 'wp_enqueue_scripts', array( static::current_instance(), 'init_styles' ) );
+		if ( static::get_config('enable_content_types') ) {
+			static::init_array_of_classes( $config::get_content_types() );
 		}
 		if ( is_admin() ) {
-			if ( static::ENABLE_ADMIN_CONTROLLERS ) {
-				static::init_admin_controllers();
+			if ( static::get_config('enable_admin_controllers') ) {
+				static::init_array_of_classes( $config::get_admin_controller() );
 			}
-			if ( static::ENABLE_META_BOXES ) {
-				static::init_meta_boxes();
+			if ( static::get_config('enable_admin_pages') ) {
+				static::init_array_of_classes( $config::get_admin_page() );
+			}
+			if ( static::get_config('enable_meta_boxes') ) {
+				static::init_array_of_classes( $config::get_admin_meta_box() );
 			}
 		}
 	}
@@ -141,78 +86,10 @@ abstract class Root_Instance extends Static_Instance {
 	 * 
 	 * @return void No return value
 	 */
-	static public function init_class_array( $classes, $configs = array() ) {
-		foreach ( $classes as $class ) {
-			$config = empty( $configs[ $class ] ) ? array() : $configs[ $class ];
-			static::init_static_class( $class, $config );
-			unset( $config );
+	static public function init_array_of_classes( $classes ) {
+		foreach ( (array) $classes as $class ) {
+			static::init_static_class( $class );
 		}
-	}
-
-	/**
-	 * Init method for the admin controllers
-	 * 
-	 * The method loops through the preconfigured admin_controllers 
-	 * array
-	 * 
-	 * @return void No return value
-	 */
-	static public function init_admin_controllers() {
-		static::init_class_array( static::admin_controllers(), static::admin_controller_configs() );
-	}
-
-	/**
-	 * Init method for the content types
-	 * 
-	 * The method loops through the preconfigured content_types 
-	 * array
-	 *
-	 * @return void No return value
-	 */
-	static public function init_content_types() {
-		static::init_class_array( static::content_types(), static::content_type_configs() );
-	}
-
-	/**
-	 * Init method for the meta boxes
-	 * 
-	 * The method loops through the preconfigured meta_boxes 
-	 * array
-	 *
-	 * @return void No return value
-	 */
-	static public function init_meta_boxes() {
-		static::init_class_array( static::meta_boxes(), static::meta_box_configs() );
-	}
-
-	/**
-	 * Init method for the shortcodes
-	 * 
-	 * The method loops through the preconfigured shortcodes 
-	 * array
-	 *
-	 * @return void No return value
-	 */
-	static public function init_shortcodes() {
-		static::init_class_array( static::shortcodes(), static::shortcode_configs() );
-	}
-
-	/**
-	 * Init method for the scripts
-	 *
-	 * @return void No return value
-	 */
-	static public function init_scripts() {
-		static::enqueue_scripts( static::get_scripts() );
-	}
-
-	/**
-	 * Init method for the styles
-	 *
-	 * @return void No return value
-	 */
-	static public function init_styles() {
-		static::enqueue_styles( static::get_styles() );
 	}
 
 	/**
@@ -223,18 +100,12 @@ abstract class Root_Instance extends Static_Instance {
 	 * 
 	 * @return void No return value
 	 */
-	static public function init_static_class( $class, $config = array() ) {
+	static public function init_static_class( $class ) {
 		//static::debug( __METHOD__, array( $class, $config ) );
 		if ( class_exists( $class ) && method_exists( $class, 'init' ) ) {
-			$class_config = array(
-				'root_instance' => static::current_instance(),
-				'text_domain' => static::get_text_domain(),
-			);
-			if ( ! empty( $config ) ) {
-				$class_config = static::array_merge_nested( $class_config, $config );
-			}
-			$class::init( $class_config );
-			unset( $class_config );
+			$config = static::get_config_instance();
+			$config::set( 'root_instance', static::current_instance(), $class );
+			$class::init();
 		} else {
 			static::error( __METHOD__, "Static class ( $class ) did not exists and or have the required init method", E_USER_WARNING );
 		}
@@ -262,244 +133,5 @@ abstract class Root_Instance extends Static_Instance {
 		return $title;
 	}
 
-	/**
-	 * Get method for the wp options
-	 *  
-	 * @return array Returns the option array
-	 */
-	static public function get_default_option_key() {
-		return static::DEFAULT_OPTION_KEY;
-	}
-
-	/**
-	 * Get method for the wp options
-	 *  
-	 * @return array Returns the option array
-	 */
-	static public function get_option( $key = NULL ) {
-		if ( empty ( $key ) ) {
-			$key = static::DEFAULT_OPTION_KEY;
-		}
-		return get_option( $key );
-	}
-
-	/**
-	 * Set method for the wp options
-	 *  
-	 * @return array Returns the option array
-	 */
-	static public function set_option( $value, $key = NULL, $autoload = NULL ) {
-		if ( empty ( $key ) ) {
-			$key = static::DEFAULT_OPTION_KEY;
-		}
-		if ( empty ( $autoload ) ) {
-			$key = static::DEFAULT_OPTION_AUTOLOAD;
-		}
-		$enable_autoload = $autoload ? 'yes' : 'no';
-		$return_value = add_option( $key, $value, NULL, $enable_autoload );
-		if ( ! $return_value ) {
-			$return_value = update_option( $key, $value );
-		}
-		return $return_value;
-	}
-
-	/**
-	 * Method for the metadata key prefix
-	 *  
-	 * @return string Returns the metadata key prefix
-	 */
-	static public function get_metadata_key_prefix() {
-		$config = static::get_config();
-		return isset( $config[ 'metadata_keys' ][ 'prefix' ] ) ? $config[ 'metadata_keys' ][ 'prefix' ] : '';
-	}
-
-	/**
-	 * Method for the metadata key
-	 *  
-	 * @return string Returns the metadata key
-	 */
-	static public function get_metadata_key( $key ) {
-		$config = static::get_config();
-		return isset( $config[ 'metadata_keys' ][ $key ] ) ? static::get_metadata_key_prefix() . $config[ 'metadata_keys' ][ $key ] : NULL;
-	}
-
-	/**
-	 * Method for the base_url from key
-	 *  
-	 * @return string Returns the base url
-	 */
-	static public function get_base_url( $key = '' ) {
-		$config = static::get_config();
-		if ( empty( $key ) ) {
-			return isset( $config[ 'base_urls' ][ 'base' ] ) ? $config[ 'base_urls' ][ 'base' ] : '';
-		}
-		return isset( $config[ 'base_urls' ][ $key ] ) ? $config[ 'base_urls' ][ $key ] : '';
-	}
-
-	/**
-	 * Method for the extention based on key
-	 *  
-	 * @return string Returns the base url
-	 */
-	static public function get_extention( $key ) {
-		$config = static::get_config();
-		return isset( $config[ 'extentions' ][ $key ] ) ? $config[ 'extentions' ][ $key ] : '.' . $key;
-	}
-
-	/**
-	 * Method for the admin_controllers
-	 *  
-	 * @return array Returns the admin controllers
-	 */
-	static public function admin_controllers() {
-		$config = static::get_config();
-		return (array) $config[ 'admin_controllers' ];
-	}
-
-	/**
-	 * Method for the admin_controller_configs
-	 *  
-	 * @return array Returns the admin control configs
-	 */
-	static public function admin_controller_configs() {
-		$config = static::get_config();
-		return (array) $config[ 'admin_controller_configs' ];
-	}
-
-
-	/**
-	 * Method for the content_types
-	 *  
-	 * @return array Returns the admin controllers
-	 */
-	static public function content_types() {
-		$config = static::get_config();
-		return (array) $config[ 'content_types' ];
-	}
-
-	/**
-	 * Method for the content_type_configs
-	 *  
-	 * @return array Returns the admin control configs
-	 */
-	static public function content_type_configs() {
-		$config = static::get_config();
-		return (array) $config[ 'content_type_configs' ];
-	}
-
-
-	/**
-	 * Method for the meta_boxes
-	 *  
-	 * @return array Returns the admin controllers
-	 */
-	static public function meta_boxes() {
-		$config = static::get_config();
-		return (array) $config[ 'meta_boxes' ];
-	}
-
-	/**
-	 * Method for the meta_box_configs
-	 *  
-	 * @return array Returns the admin control configs
-	 */
-	static public function meta_box_configs() {
-		$config = static::get_config();
-		return (array) $config[ 'meta_box_configs' ];
-	}
-
-
-	/**
-	 * Method for the shortcodes
-	 *  
-	 * @return array Returns the admin controllers
-	 */
-	static public function shortcodes() {
-		$config = static::get_config();
-		return (array) $config[ 'shortcodes' ];
-	}
-
-	/**
-	 * Method for the shortcode_configs
-	 *  
-	 * @return array Returns the admin control configs
-	 */
-	static public function shortcode_configs() {
-		$config = static::get_config();
-		return (array) $config[ 'shortcode_configs' ];
-	}
-
-	/**
-	 * Method for enqueing scripts
-	 *
-	 * @param array $scripts An array containing the scripts to include
-	 *
-	 * @return void No return value
-	 */
-	static public function enqueue_scripts( $scripts = array() ) {
-		foreach ( (array) $scripts as $script_id => $script ) {
-			$url = '';
-			if ( ! empty( $script['url'] ) ) {
-				$url = $script['url'];
-			} else if ( ! empty( $script['ezurl'] ) ) {
-				$url = static::get_base_url( 'scripts' ) . $script['ezurl'] . static::get_extention('js');
-			}
-			if ( ! empty( $url ) ) {
-				$requires = empty( $script['requires'] ) ? NULL : $script['requires'];
-				$version = empty( $script['version'] ) ? static::get_asset_version() : $script['version'];
-				if ( ! is_admin() && ! empty( $script['replace_existing'] ) ) { //Wordpress has checks for removing things in the admin so not going to bother
-					wp_deregister_script( $script_id );
-				} 
-				if ( ! wp_script_is( $script_id, 'registered' ) ) {
-					wp_register_script( $script_id, $url, $requires, $version );
-				}
-				unset( $requires, $version );
-			} else {
-				unset( $scripts[ $script_id ] ); //No url was given so remomving it from the list
-			}
-		}
-		foreach ( (array) $scripts as $script_id => $script ) {
-			if ( ! wp_script_is( $script_id, 'enqueued' ) ) {
-				wp_enqueue_script( $script_id );
-			}
-		}
-	}
-
-	/**
-	 * Method for enqueing styles
-	 *
-	 * @param array $scripts An array containing the styles to include
-	 *
-	 * @return void No return value
-	 */
-	static public function enqueue_styles( $styles = array() ) {
-		foreach ( (array) $styles as $style_id => $style ) {
-			$url = '';
-			if ( ! empty( $style['url'] ) ) {
-				$url = $style['url'];
-			} else if ( ! empty( $style['ezurl'] ) ) {
-				$url = static::get_base_url( 'styles' ) . $style['ezurl'] . static::get_extention('css');
-			}
-			if ( ! empty( $url ) ) {
-				$requires = empty( $style['requires'] ) ? NULL : $style['requires'];
-				$version = empty( $style['version'] ) ? static::get_asset_version() : $style['version'];
-				if ( ! is_admin() && ! empty( $style['replace_existing'] ) ) { //Wordpress has checks for removing things in the admin so not going to bother
-					wp_deregister_style( $style_id );
-				} 
-				if ( ! wp_style_is( $style_id, 'registered' ) ) {
-					wp_register_style( $style_id, $url, $requires, $version );
-				}
-				unset( $requires, $version );
-			} else {
-				unset( $scripts[ $style_id ] ); //No url was given so remomving it from the list
-			}
-			unset( $url );
-		}
-		foreach ( (array) $styles as $style_id => $style ) {
-			if ( ! wp_style_is( $style_id, 'enqueued' ) ) {
-				wp_enqueue_style( $style_id );
-			}
-		}
-	}
 
 }

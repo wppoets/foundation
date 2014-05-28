@@ -21,162 +21,147 @@
  */
 abstract class Content_Type extends Child_Instance {
 
-	/** Used as the ID of the instance */
-	const ID = 'wpp-content-type';
-
-	/** Used to store the post-type id*/
-	const POST_TYPE = 'wpp-content-type';
-
-	/** Used to store the singular form of the name */
-	const NAME_SINGLE = 'Content';
-
-	/** Used to store the plural form of the name */
-	const NAME_PLURAL = 'Contents';
-
-	/** Used to store the text domain */
-	const TEXT_DOMAIN = '';
-
-	/** Used by register_post_type args */
-	const DESCRIPTION = '';
-
-	/** Used by register_post_type args */
-	const IS_PUBLIC = FALSE;
-
-	/** Used by register_post_type args */
-	const EXCLUDE_FROM_SEARCH = TRUE;
-
-	/** Used by register_post_type args */
-	const PUBLICLY_QUERYABLE = self::IS_PUBLIC;
-
-	/** Used by register_post_type args */
-	const SHOW_UI = self::IS_PUBLIC;
-
-	/** Used by register_post_type args */
-	const SHOW_IN_NAV_MENUS = self::IS_PUBLIC;
-
-	/** Used by register_post_type args */
-	const SHOW_IN_MENU = self::SHOW_UI;
-
-	/** Used by register_post_type args */
-	const SHOW_IN_ADMIN_BAR = self::SHOW_IN_MENU;
-
-	/** Used by register_post_type args */
-	const MENU_POSITION = NULL;
-
-	/** Used by register_post_type args */
-	const MENU_ICON = NULL;
-
-	/** Used by register_post_type args */
-	const CAPABILITY_TYPE = 'post';
-
-	/** Used by register_post_type args */
-	const MAP_META_CAP = TRUE;
-
-	/** Used by register_post_type args */
-	const HIERARCHICAL = FALSE;
-
-	/** Used by register_post_type args, comma delimited */
-	const SUPPORTS = 'title,editor';
-
-	/** Used by register_post_type args, comma delimited */
-	const TAXONOMIES = '';
-
-	/** Used by register_post_type args */
-	const HAS_ARCHIVE = FALSE;
-
-	/** Used by register_post_type args */
-	const PERMALINK_EPMASK = EP_PERMALINK;
-
-	/** Used by register_post_type args */
-	const QUERY_VAR = self::POST_TYPE;
-
-	/** Used by register_post_type args */
-	const CAN_EXPORT = TRUE;
-
-	/** Used by register_post_type args */
-	const SHOW_DASHBOARD = FALSE;
-
-	/** Used to disable the quick edit box */
-	const DISABLE_QUICK_EDIT = FALSE;
-
-	/** Used to enable cascade delete */
-	const ENABLE_CASCADE_DELETE = FALSE;
-
 	/**
-	 * Method called before initialized is set to true
+	 * Initialization point for the configuration
 	 * 
 	 * @return void No return value
 	 */
-	static public function init_before_initialized() {
-		parent::init_before_initialized();
-		add_action( 'init', array( $static_instance, 'action_init' ) );
-		if ( static::SHOW_DASHBOARD ) {
-			add_action( 'dashboard_glance_items', array( $static_instance, 'action_dashboard_glance_items' ) );
-		}
-		if ( static::DISABLE_QUICK_EDIT ) {
-			if ( 'post' === static::CAPABILITY_TYPE ) {
-				add_action( 'post_row_actions', array( $static_instance, 'action_post_row_actions_disable_quick_edit' ), 10, 2 );
-			} elseif( 'page' === static::CAPABILITY_TYPE ) {
-				add_action( 'page_row_actions', array( $static_instance, 'action_post_row_actions_disable_quick_edit' ), 10, 2 );
-			}
-		}
-		if ( static::ENABLE_CASCADE_DELETE ) {
-			add_action( 'delete_post', array( $static_instance, 'action_delete_post_cascade' ) );
-		}
+	static public function init_config() {
+		parent::init_config();
+		$current_instance = static::current_instance();
+		$config = static::get_config_instance();
+		$config::set_default( 'post_type', '', $current_instance );
+		$config::set_default( 'post_type_args', array(), $current_instance );
+		$config::set_default( 'post_type_lables', array(), $current_instance );
+		$config::set_default( 'post_type_name_single', '', $current_instance );
+		$config::set_default( 'post_type_name_plural', '', $current_instance );
+		$config::set_default( 'post_type_description', '', $current_instance );
+		$config::set_default( 'post_type_is_public', FALSE, $current_instance );
+		$config::set_default( 'post_type_exclude_from_search', TRUE, $current_instance );
+		$config::set_default( 'post_type_publicly_queryable', $config::get_default( 'post_type_is_public', $current_instance ), $current_instance );
+		$config::set_default( 'post_type_show_ui', $config::get_default( 'post_type_is_public', $current_instance ), $current_instance );
+		$config::set_default( 'post_type_show_in_nav_menus', $config::get_default( 'post_type_is_public', $current_instance ), $current_instance );
+		$config::set_default( 'post_type_show_in_menus', $config::get_default( 'post_type_show_ui', $current_instance ), $current_instance );
+		$config::set_default( 'post_type_show_in_admin_bar', $config::get_default( 'post_type_show_in_menus', $current_instance ), $current_instance );
+		$config::set_default( 'post_type_menu_position', NULL, $current_instance );
+		$config::set_default( 'post_type_menu_icon', NULL, $current_instance );
+		$config::set_default( 'post_type_capability', 'post', $current_instance );
+		$config::set_default( 'post_type_map_meta_cap', TRUE, $current_instance );
+		$config::set_default( 'post_type_hierarchical', FALSE, $current_instance );
+		$config::set_default( 'post_type_supports', array('title','editor'), $current_instance );
+		$config::set_default( 'post_type_taxonomies', array(), $current_instance );
+		$config::set_default( 'post_type_has_archive', FALSE, $current_instance );
+		$config::set_default( 'post_type_permalink_epmask', EP_PERMALINK, $current_instance );
+		$config::set_default( 'post_type_query_var', $config::get_default( 'post_type', $current_instance ), $current_instance );
+		$config::set_default( 'post_type_can_export', TRUE, $current_instance );
+		$config::set_default( 'disable_quick_edit', FALSE, $current_instance );
+		$config::set_default( 'enable_cascade_delete', FALSE, $current_instance );
+		$config::set_default( 'enable_dashboard_item_count', FALSE, $current_instance );
 	}
 
 	/**
-	 * Set method for the options
-	 *  
-	 * @param string|array $config An array containing the config
-	 * @param boolean $merge Should the current config be merged in?
+	 * Init config check
 	 * 
 	 * @return void No return value
 	 */
-	static public function set_config( $config, $merge = FALSE ) {
-		return parent::set_config( wpp_array_merge_nested(
-			array ( 
-				'args' => array(
-					'labels'             => array(
-						'name'               => _x( ucfirst( strtolower( static::NAME_PLURAL ) ), 'post type general name', static::TEXT_DOMAIN ),
-						'singular_name'      => _x( ucfirst( strtolower( static::NAME_SINGLE ) ), 'post type singular name', static::TEXT_DOMAIN ),
-						'menu_name'          => _x( ucfirst( strtolower( static::NAME_PLURAL ) ), 'admin menu', static::TEXT_DOMAIN ),
-						'name_admin_bar'     => _x( ucfirst( strtolower( static::NAME_SINGLE ) ), 'add new on admin bar', static::TEXT_DOMAIN ),
-						'add_new'            => _x( 'Add New', strtolower( static::NAME_SINGLE ), static::TEXT_DOMAIN ),
-						'add_new_item'       => __( 'Add New ' . ucfirst( strtolower( static::NAME_SINGLE ) ), static::TEXT_DOMAIN ),
-						'new_item'           => __( 'New ' . ucfirst( strtolower( static::NAME_SINGLE ) ), static::TEXT_DOMAIN ),
-						'edit_item'          => __( 'Edit ' . ucfirst( strtolower( static::NAME_SINGLE ) ), static::TEXT_DOMAIN ),
-						'view_item'          => __( 'View ' . ucfirst( strtolower( static::NAME_SINGLE ) ), static::TEXT_DOMAIN ),
-						'all_items'          => __( 'All ' . ucfirst( strtolower( static::NAME_PLURAL ) ), static::TEXT_DOMAIN ),
-						'search_items'       => __( 'Search ' . ucfirst( strtolower( static::NAME_PLURAL ) ), static::TEXT_DOMAIN ),
-						'parent_item_colon'  => __( 'Parent ' . ucfirst( strtolower( static::NAME_PLURAL ) ) . ':', static::TEXT_DOMAIN ),
-						'not_found'          => __( 'No ' . strtolower( static::NAME_PLURAL ) . ' found.', static::TEXT_DOMAIN ),
-						'not_found_in_trash' => __( 'No ' . strtolower( static::NAME_PLURAL ) . ' found in Trash.', static::TEXT_DOMAIN ),
-					),
-					'description'         => static::DESCRIPTION,
-					'public'              => static::IS_PUBLIC,
-					'exclude_from_search' => static::EXCLUDE_FROM_SEARCH,
-					'publicly_queryable'  => static::PUBLICLY_QUERYABLE,
-					'show_ui'             => static::SHOW_UI,
-					'show_in_nav_menus'   => static::SHOW_IN_NAV_MENUS,
-					'show_in_menu'        => static::SHOW_IN_MENU,
-					'show_in_admin_bar'   => static::SHOW_IN_ADMIN_BAR,
-					'menu_position'       => static::MENU_POSITION,
-					'menu_icon'           => static::MENU_ICON,
-					'capability_type'     => static::CAPABILITY_TYPE,
-					'map_meta_cap'        => static::MAP_META_CAP,
-					'hierarchical'        => static::HIERARCHICAL,
-					'supports'            => static::SUPPORTS == '' ? array() : explode( ',', static::SUPPORTS ),
-					'taxonomies'          => static::TAXONOMIES == '' ? array() : explode( ',', static::TAXONOMIES ),
-					'has_archive'         => static::HAS_ARCHIVE,
-					'permalink_epmask'    => static::PERMALINK_EPMASK,
-					'query_var'           => static::QUERY_VAR,
-					'can_export'          => static::CAN_EXPORT,
-					'rewrite'             => array( 'slug' => static::POST_TYPE, -1 ),
-				),
-			),
-			(array) $config //Added options
-		), $merge );
+	static public function init_check_config( $settings = array() ) {
+		parent::init_check_config( array_unique ( array_merge( $settings, array(
+			'post_type',
+		) ) ) );
+
+		$post_args = static::get_config( 'post_type_args' );
+		$post_args_changed = FALSE;
+		$post_lables = static::get_config( 'post_type_lables' );
+		$post_lables_changed = FALSE;
+
+		if ( empty( $post_args ) ) {
+			$post_args => array(
+				'description'         => static::get_config( 'post_type_description' ),
+				'public'              => static::get_config( 'post_type_is_public' ),
+				'exclude_from_search' => static::get_config( 'post_type_exclude_from_search' ),
+				'publicly_queryable'  => static::get_config( 'post_type_publicly_queryable' ),
+				'show_ui'             => static::get_config( 'post_type_show_ui' ),
+				'show_in_nav_menus'   => static::get_config( 'post_type_show_in_nav_menus' ),
+				'show_in_menu'        => static::get_config( 'post_type_show_in_menus' ),
+				'show_in_admin_bar'   => static::get_config( 'post_type_show_in_admin_bar' ),
+				'menu_position'       => static::get_config( 'post_type_menu_position' ),
+				'menu_icon'           => static::get_config( 'post_type_menu_icon' ),
+				'capability_type'     => static::get_config( 'post_type_capability' ),
+				'map_meta_cap'        => static::get_config( 'post_type_map_meta_cap' ),
+				'hierarchical'        => static::get_config( 'post_type_hierarchical' ),
+				'supports'            => static::get_config( 'post_type_supports' ),
+				'taxonomies'          => static::get_config( 'post_type_taxonomies' ),
+				'has_archive'         => static::get_config( 'post_type_has_archive' ),
+				'permalink_epmask'    => static::get_config( 'post_type_permalink_epmask' ),
+				'query_var'           => static::get_config( 'post_type_query_var' ),
+				'can_export'          => static::get_config( 'post_type_can_export' ),
+				'rewrite'             => array( 'slug' => static::get_config( 'post_type' ) ),
+			);
+			$post_args_changed = TRUE;
+		} else if ( ! empty( $post_args[ 'capability_type' ] ) ) {
+			static::set_default( 'post_type_capability', $post_args[ 'capability_type' ] );
+		}
+
+		if ( empty( $post_args['labels'] ) ) {
+			if ( empty( $post_lables ) ) {
+				$text_domain = static::get_config( 'text_domain' );
+				$name_single = ucfirst( strtolower( static::get_config( 'post_type_name_single' ) ) );
+				$name_plural = ucfirst( strtolower( static::get_config( 'post_type_name_plural' ) ) );
+				$post_lables = array(
+					'name'               => _x( $name_plural, 'post type general name', $text_domain ),
+					'singular_name'      => _x( $name_single, 'post type singular name', $text_domain ),
+					'menu_name'          => _x( $name_plural, 'admin menu', $text_domain ),
+					'name_admin_bar'     => _x( $name_single, 'add new on admin bar', $text_domain ),
+					'add_new'            => _x( 'Add New', $name_single, $text_domain ),
+					'add_new_item'       => __( 'Add New ' . $name_single, $text_domain ),
+					'new_item'           => __( 'New ' . $name_single, $text_domain ),
+					'edit_item'          => __( 'Edit ' . $name_single, $text_domain ),
+					'view_item'          => __( 'View ' . $name_single, $text_domain ),
+					'all_items'          => __( 'All ' . $name_plural, $text_domain ),
+					'search_items'       => __( 'Search ' . $name_plural, $text_domain ),
+					'parent_item_colon'  => __( 'Parent ' . $name_plural . ':', $text_domain ),
+					'not_found'          => __( 'No ' . strtolower( $name_plural ) . ' found.', $text_domain ),
+					'not_found_in_trash' => __( 'No ' . strtolower( $name_plural ) . ' found in Trash.', $text_domain ),
+				);
+				$post_lables_changed = TRUE;
+			}
+			$post_args['labels'] = $post_lables;
+			$post_args_changed = TRUE;
+		}
+
+		if ( $post_args_changed ) {
+			static::set_config( 'post_type_args', $post_args );
+		}
+		if ( $post_lables_changed ) {
+			static::set_config( 'post_type_lables', $post_lables );
+		}
+
+	}
+
+	/**
+	 * Method for after init has completed
+	 * 
+	 * @return void No return value
+	 */
+	static public function init_done() {
+		parent::init_done();
+		$current_instance = static::current_instance();
+
+		add_action( 'init', array( $current_instance, 'action_init' ) );
+
+		if ( static::get_config('enable_dashboard_item_count') ) {
+			add_action( 'dashboard_glance_items', array( $current_instance, 'action_dashboard_glance_items' ) );
+		}
+		if ( static::get_config('disable_quick_edit') ) {
+			if ( 'post' === static::get_config('post_type_capability') ) {
+				add_action( 'post_row_actions', array( $current_instance, 'action_post_row_actions_disable_quick_edit' ), 10, 2 );
+			} elseif( 'page' === static::get_config('post_type_capability') ) {
+				add_action( 'page_row_actions', array( $current_instance, 'action_post_row_actions_disable_quick_edit' ), 10, 2 );
+			}
+		}
+		if ( static::get_config('enable_cascade_delete') ) {
+			add_action( 'delete_post', array( $current_instance, 'action_delete_post_cascade' ) );
+		}
 	}
 
 	/**
@@ -187,7 +172,7 @@ abstract class Content_Type extends Child_Instance {
 	 * @return string Returns the results of the shortcode
 	 */
 	static public function action_delete_post_cascade( $post_id ) {
-		if ( static::POST_TYPE !== get_post_type( $post_id ) ) {
+		if ( static::get_config( 'post_type' ) !== get_post_type( $post_id ) ) {
 			return;
 		}
 		$cascade_posts = new \WP_Query( array(
@@ -215,7 +200,7 @@ abstract class Content_Type extends Child_Instance {
 	 * @return array Updated actions array
 	 */
 	static public function action_post_row_actions_disable_quick_edit( $actions, $post ) {
-		if ( static::POST_TYPE == $post->post_type ) {
+		if ( static::get_config( 'post_type' ) == $post->post_type ) {
 			unset( $actions['inline hide-if-no-js'] );
 		}
 		return $actions;
@@ -227,8 +212,8 @@ abstract class Content_Type extends Child_Instance {
 	 * @return void No return value
 	 */
 	static public function action_init() {
-		$config = static::get_config();
-		register_post_type( static::POST_TYPE, $config[ 'args' ] );
+		$config = static::get_config_instance();
+		register_post_type( static::get_config( 'post_type' ), static::get_config( 'post_type_args' ) );
 	}
 	
 	/**
@@ -237,20 +222,20 @@ abstract class Content_Type extends Child_Instance {
 	 * @return void No return value
 	 */
 	static public function action_dashboard_glance_items() {
-		$config = static::get_config();
-		$labels = &$config['args']['labels'];
-		$post_type_info = get_post_type_object( static::POST_TYPE );
-		$num_posts = wp_count_posts( static::POST_TYPE );
+		$post_type = static::get_config( 'post_type' );
+		$labels = static::get_config( 'post_type_lables' );
+		$post_type_info = get_post_type_object( $post_type );
+		$num_posts = wp_count_posts( $post_type );
 		$num = number_format_i18n( $num_posts->publish );
 		$text = _n( $labels['singular_name'], $labels['name'], intval( $num_posts->publish ) );
-		print( '<li class="page-count ' . $post_type_info->name. '-count"><a href="edit.php?post_type=' . static::POST_TYPE . '">' . $num . ' ' . $text . '</a></li>' );
+		print( '<li class="page-count ' . $post_type_info->name. '-count"><a href="edit.php?post_type=' . $post_type . '">' . $num . ' ' . $text . '</a></li>' );
 	}
 
 	/**
 	 * Method for inserting/updating post
 	 */
 	static public function insert_post( $post, $wp_error = FALSE ) {
-		$post[ 'post_type' ] = static::POST_TYPE;
+		$post[ 'post_type' ] = static::get_config( 'post_type' );
 		return wp_insert_post( $post, $wp_error );
 	}
 
@@ -272,7 +257,7 @@ abstract class Content_Type extends Child_Instance {
 	 * Method for getting multiple posts
 	 */
 	static public function get_posts( $args ) {
-		$args[ 'post_type' ] = static::POST_TYPE;
+		$args[ 'post_type' ] = static::get_config( 'post_type' );
 		$posts_query = new \WP_Query( $args );
 		$posts = ( empty( $posts_query->posts ) ? array() : $posts_query->posts );
 		wp_reset_postdata();

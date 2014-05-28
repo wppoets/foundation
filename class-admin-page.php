@@ -21,79 +21,36 @@
  */
 abstract class Admin_Page extends Child_Instance {
 
-	/** Used to set the ID */
-	const ID = 'wpp-admin-page';
-
-	/** Used to store the form prefex */
-	const HTML_FORM_PREFIX = 'wpp_admin_page'; // should only use [a-z0-9_]
-
-	/** Used to store the form prefex */
-	const HTML_CLASS_PREFIX = 'wpp-admin-page-'; // should only use [a-z0-9_-]
-
-	/** Used to store the form prefex */
-	const HTML_ID_PREFIX = 'wpp-admin-page-'; // should only use [a-z0-9_-]
-
-	/** Used to enable enqueue_media function */
-	const ENABLE_ENQUEUE_MEDIA = FALSE;
-
-	/** Used to enable the admin footer */
-	const ENABLE_ADMIN_FOOTER = FALSE;
-
-	/** Used to enable the action admin_menu */
-	const ENABLE_ADMIN_MENU = FALSE;
-
-	/** Used to enable the action admin_init */
-	const ENABLE_ADMIN_INIT = FALSE;
-
-	/** Used to enable the action save_post */
-	const ENABLE_SAVE_POST = FALSE;
-
 	/**
-	 * Initialization point for the static class
+	 * Initialization point for the configuration
 	 * 
 	 * @return void No return value
 	 */
-	static public function init( $config = array(), $merge = FALSE ) {
-		if ( ! is_admin() || static::is_initialized() ) { 
-			return; 
-		}
-		parent::init( $config, $merge );
+	static public function init_config() {
+		parent::init_config();
+		$current_instance = static::current_instance();
+		$config = static::get_config_instance();
+		$config::set_default( 'enable_admin_footer', FALSE, $current_instance );
+		$config::set_default( 'enable_admin_menu', FALSE, $current_instance );
+		$config::set_default( 'enable_admin_init', FALSE, $current_instance );
 	}
 
 	/**
-	 * Method called before initialized is set to true
+	 * Method for after init has completed
 	 * 
 	 * @return void No return value
 	 */
-	static public function init_before_initialized() {
-		parent::init_before_initialized();
-		if ( static::ENABLE_ADMIN_INIT ) {
+	static public function init_done() {
+		parent::init_done();
+		if ( static::get_config('enable_admin_init') ) {
 			add_action( 'admin_init', array( static::current_instance(), 'action_admin_init' ) );
 		}
-		if ( static::ENABLE_ADMIN_MENU ) {
+		if ( static::get_config('enable_admin_menu') ) {
 			add_action( 'admin_menu', array( static::current_instance(), 'action_admin_menu' ) );
 		}
-		if ( static::ENABLE_ADMIN_FOOTER ) {
+		if ( static::get_config('enable_admin_footer') ) {
 			add_action( 'admin_footer', array( static::current_instance(), 'action_admin_footer' ) );
 		}
-	}
-
-	/**
-	 * Set method for the options
-	 *  
-	 * @param string|array $config An array containing the config
-	 * @param boolean $merge Should the current config be merged in?
-	 * 
-	 * @return void No return value
-	 */
-	static public function set_config( $config, $merge = FALSE ) {
-		return parent::set_config( static::array_merge_nested(
-			array( //Default options
-				'scripts' => array(),
-				'styles' => array(),
-			),
-			(array) $config //Added options
-		), $merge );
 	}
 
 	/**
@@ -102,7 +59,7 @@ abstract class Admin_Page extends Child_Instance {
 	 * @return void No return value
 	 */
 	static public function action_admin_init( ) {
-		// Holder
+		//Holder
 	}
 
 	/**
@@ -111,38 +68,16 @@ abstract class Admin_Page extends Child_Instance {
 	 * @return void No return value
 	 */
 	static public function action_admin_menu( ) {
-		// Holder
+		//Holder
 	}
 
 	/**
-	 * WordPress action for adding things to the admin footer
+	 * WordPress action for admin_footer
 	 *
 	 * @return void No return value
 	 */
 	static public function action_admin_footer() {
 		//Holder
-	}
-
-	/**
-	 * WordPress action for saving the post
-	 * 
-	 * @return void No return value
-	 */
-	static public function action_save_post( $post_id ) {
-		// Holder
-		if ( ! parent::action_save_post( $post_id ) ) {
-			return;
-		}
-	}
-
-	/**
-	 * WordPress action for an ajax call
-	 * 
-	 * @return void No return value
-	 */
-	static public function action_wp_ajax( $data = array() ) {
-		// Holder
-		return parent::action_wp_ajax( $data );
 	}
 
 }

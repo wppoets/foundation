@@ -21,25 +21,19 @@
  */
 abstract class Plugin extends Root_Instance {
 
-	/** Used to set the plugins ID */
-	const ID = 'wpp-plugin';
-
-	/** Used to set the default option id */
-	const DEFAULT_OPTION_KEY = 'wpp_plugin_options';
-
-	/** Used to set the deault autoload value */
-	const DEFAULT_OPTION_AUTOLOAD = FALSE;
-
-	/** Used to enable admin controllers */
-	const ENABLE_ADMIN_CONTROLLERS = FALSE;
-
-	/** Used to enable content types */
-	const ENABLE_CONTENT_TYPES = FALSE;
-
-	/** Used to enable meta boxes */
-	const ENABLE_META_BOXES = FALSE;
-
-	/** Used to enable shortcodes */
-	const ENABLE_SHORTCODES = FALSE;
+	/**
+	 * Initialization point for the configuration
+	 * 
+	 * @return void No return value
+	 */
+	static public function init_config() {
+		parent::init_config();
+		$config = static::get_config_instance();
+		$current_instance = static::current_instance();
+		$config::set_default( 'enable_admin_controllers', FALSE, $current_instance );
+		$config::set_default( 'enable_content_types', FALSE, $current_instance );
+		$config::set_default( 'enable_meta_boxes', FALSE, $current_instance );
+		$config::set_default( 'enable_short_codes', FALSE, $current_instance );
+	}
 
 }
