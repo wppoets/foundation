@@ -33,7 +33,7 @@ abstract class Plugin extends Root_Instance {
 		$config::set_default( 'enable_admin_controllers', FALSE, $current_instance );
 		$config::set_default( 'enable_content_types', FALSE, $current_instance );
 		$config::set_default( 'enable_meta_boxes', FALSE, $current_instance );
-		$config::set_default( 'enable_short_codes', FALSE, $current_instance );
+		$config::set_default( 'enable_shortcodes', FALSE, $current_instance );
 	}
 
 }

@@ -34,7 +34,7 @@ abstract class Root_Instance extends Instance {
 		$config::set_default( 'enable_admin_pages', FALSE, $current_instance );
 		$config::set_default( 'enable_content_types', FALSE, $current_instance );
 		$config::set_default( 'enable_meta_boxes', FALSE, $current_instance );
-		$config::set_default( 'enable_short_codes', FALSE, $current_instance );
+		$config::set_default( 'enable_shortcodes', FALSE, $current_instance );
 		$config::set_default( 'enable_link_manager', FALSE, $current_instance );
 		$config::set_default( 'enable_action_init', FALSE, $current_instance );
 		$config::set_default( 'enable_action_wp_head', FALSE, $current_instance );
@@ -62,11 +62,11 @@ abstract class Root_Instance extends Instance {
 			add_filter( 'pre_option_link_manager_enabled', '__return_true' ); // Re-enable the link manager
 		}
 		$config = static::get_config_instance();
-		if ( static::get_config('enable_short_codes') ) {
-			static::init_array_of_classes( $config::get_short_codes() );
+		if ( static::get_config('enable_shortcodes') ) {
+			static::init_array_of_classes( $config::get_shortcode() );
 		}
 		if ( static::get_config('enable_content_types') ) {
-			static::init_array_of_classes( $config::get_content_types() );
+			static::init_array_of_classes( $config::get_content_type() );
 		}
 		if ( is_admin() ) {
 			if ( static::get_config('enable_admin_controllers') ) {
