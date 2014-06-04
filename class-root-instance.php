@@ -30,6 +30,7 @@ abstract class Root_Instance extends Instance {
 		parent::init_config();
 		$config = static::get_config_instance();
 		$current_instance = static::current_instance();
+		$config::set_default( 'enable_shortcodes_in_text_widget', FALSE, $current_instance );
 		$config::set_default( 'enable_admin_controllers', FALSE, $current_instance );
 		$config::set_default( 'enable_admin_pages', FALSE, $current_instance );
 		$config::set_default( 'enable_content_types', FALSE, $current_instance );
@@ -61,6 +62,11 @@ abstract class Root_Instance extends Instance {
 		if ( static::get_config('enable_link_manager') ) {
 			add_filter( 'pre_option_link_manager_enabled', '__return_true' ); // Re-enable the link manager
 		}
+		if ( static::get_config('enable_shortcodes_in_text_widget') ) {
+			add_filter( 'widget_text', 'shortcode_unautop'); 
+			add_filter( 'widget_text', 'do_shortcode');
+		}
+
 		$config = static::get_config_instance();
 		if ( static::get_config('enable_shortcodes') ) {
 			static::init_array_of_classes( $config::get_shortcode() );
@@ -78,7 +84,29 @@ abstract class Root_Instance extends Instance {
 			if ( static::get_config('enable_meta_boxes') ) {
 				static::init_array_of_classes( $config::get_admin_meta_box() );
 			}
+			static::init_admin();
+		} else {
+			static::init_public();
 		}
+	}
+
+	/*
+	 * Method call only if not is_admin
+	 * 
+	 * @return void No return value
+	 */
+	static public function init_public() {
+		//Place holder
+	}
+
+
+	/*
+	 * Method call only if is_admin
+	 * 
+	 * @return void No return value
+	 */
+	static public function init_admin() {
+		//Place holder
 	}
 
 	/**

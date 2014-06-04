@@ -75,7 +75,7 @@ abstract class Content_Type extends Child_Instance {
 		$post_lables_changed = FALSE;
 
 		if ( empty( $post_args ) ) {
-			$post_args => array(
+			$post_args = array(
 				'description'         => static::get_config( 'post_type_description' ),
 				'public'              => static::get_config( 'post_type_is_public' ),
 				'exclude_from_search' => static::get_config( 'post_type_exclude_from_search' ),
