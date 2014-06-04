@@ -31,13 +31,13 @@ abstract class Instance_Config extends Static_Config {
 		$config = static::get_config_instance();
 		$config::set_default( 'text_domain', '' );
 		$config::set_default( 'asset_version', '' );
-		$config::set_default( 'config_group_global', array( 'admin_section', 'admin_page', 'content_type', 'meta_box', 'shortcode' ) );
-		$config::set_default( 'config_group_instance', array( 'scripts', 'styles' ) );
+		$config::set_default( 'config_group_type_global', array( 'admin_section', 'admin_page', 'content_type', 'meta_box', 'shortcode' ) );
+		$config::set_default( 'config_group_type_instance', array( 'scripts', 'styles' ) );
 	}
 
 	static public function __callStatic( $name, $arguments ) {
 		$params = explode( '_', $name, 2 );
-		if ( empty( $params[0] ) || empty( $params[1] ) || empty( $arguments[0] ) ) {
+		if ( empty( $params[0] ) || empty( $params[1] ) ) {
 			return;
 		}
 
@@ -50,7 +50,7 @@ abstract class Instance_Config extends Static_Config {
 		$instance_groups = $config::get( 'config_group_type_instance' );
 		$is_instance_group = in_array( $group, $instance_groups );
 
-		if ( ! $is_global_group || ! $is_instance_group ) {
+		if ( ! $is_global_group && ! $is_instance_group ) {
 			return;
 		}
 		if ( $is_instance_group && empty( $arguments[1] ) ) { // Instance group commands should have a 3rd argument
@@ -59,9 +59,11 @@ abstract class Instance_Config extends Static_Config {
 		if ( ! in_array( $verb, array( 'add', 'config', 'remove', 'get', 'set' ) ) ) {
 			return;
 		} 
-
 		switch( $verb ) { 
 			case 'add':
+				if ( empty( $arguments[0] ) ) {
+					return;
+				}
 				$values = $is_global_group ? $config::get( 'config__' . $group ) : $config::get( 'config__' . $group, $arguments[1] );
 				if ( ! is_array( $values ) ) {
 					$values = array();
@@ -73,6 +75,9 @@ abstract class Instance_Config extends Static_Config {
 				return $arguments[0];
 				break;
 			case 'config':
+				if ( empty( $arguments[0] ) ) {
+					return;
+				}
 				if ( $is_instance_group ) {
 					return FALSE; // TODO: need to return a warning, sense you cant set config options to an instance group
 				}
@@ -103,6 +108,9 @@ abstract class Instance_Config extends Static_Config {
 				return $values;
 				break;
 			case 'set':
+				if ( empty( $arguments[0] ) ) {
+					return;
+				}
 				if ( empty( $arguments[1] ) ) {
 					return FALSE; // TODO: return required field missing error?
 				}

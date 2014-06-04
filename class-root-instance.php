@@ -75,8 +75,8 @@ abstract class Root_Instance extends Instance {
 			static::init_array_of_classes( $config::get_content_type() );
 		}
 		if ( is_admin() ) {
-			if ( static::get_config('enable_admin_controllers') ) {
-				static::init_array_of_classes( $config::get_admin_controller() );
+			if ( static::get_config('enable_admin_sections') ) {
+				static::init_array_of_classes( $config::get_admin_section() );
 			}
 			if ( static::get_config('enable_admin_pages') ) {
 				static::init_array_of_classes( $config::get_admin_page() );

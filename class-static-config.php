@@ -55,10 +55,10 @@ abstract class Static_Config extends Static_Class {
 	 * $current_instance = static::current_instance();
 	 */
 	static public function set_default( $key, $value, $instance = 'global_instance' ) {
-		if ( ! isset( self::$_defaults[ static::current_instance() ][ $instance ] ) ) {
-			self::$_defaults[ static::current_instance() ][ $instance ] = array();
+		if ( ! isset( self::$_defaults[ static::current_instance() ] ) ) {
+			self::$_defaults[ static::current_instance() ] = array();
 		}
-		if ( ! isset( self::$_defaults[ $instance ] ) ) {
+		if ( ! isset( self::$_defaults[ static::current_instance() ][ $instance ] ) ) {
 			self::$_defaults[ static::current_instance() ][ $instance ] = array();
 		}
 		self::$_defaults[ static::current_instance() ][ $instance ][ $key ] = $value;
@@ -140,4 +140,18 @@ abstract class Static_Config extends Static_Class {
 		}
 		return $required;
 	}
+
+	/**
+	 * Get method
+	 *  
+	 * @return string Returns static class name
+	 */
+	static public function _get_raw_dump() {
+		$return_array = array(
+			&self::$_defaults,
+			&self::$_values,
+		);
+		return $return_array;
+	}
+
 }
