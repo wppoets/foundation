@@ -63,7 +63,8 @@ abstract class Shortcode extends Child_Instance {
 	 * @return void No return value
 	 */
 	static public function is_filter_atts() {
-		return ( empty( static::get_config('enable_filter_atts') ) ? FALSE : TRUE );
+		$return_check = static::get_config('enable_filter_atts');
+		return ( empty( $return_check ) ? FALSE : TRUE );
 	}
 
 	/**
