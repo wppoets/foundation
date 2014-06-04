@@ -31,7 +31,7 @@ abstract class Instance_Config extends Static_Config {
 		$config = static::get_config_instance();
 		$config::set_default( 'text_domain', '' );
 		$config::set_default( 'asset_version', '' );
-		$config::set_default( 'config_group_global', array( 'admin_controller', 'admin_page', 'content_type', 'meta_box', 'shortcode' ) );
+		$config::set_default( 'config_group_global', array( 'admin_section', 'admin_page', 'content_type', 'meta_box', 'shortcode' ) );
 		$config::set_default( 'config_group_instance', array( 'scripts', 'styles' ) );
 	}
 

@@ -19,7 +19,7 @@
 /**
  * @author Michael Stutz <michaeljstutz@gmail.com>
  */
-abstract class Admin extends Child_Instance {
+abstract class Admin_Section extends Child_Instance {
 
 	/**
 	 * Initialization point for the configuration
