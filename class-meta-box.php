@@ -60,7 +60,7 @@ abstract class Meta_Box extends Child_Instance {
 	 * @return void No return value
 	 */
 	static public function action_add_meta_boxes() {
-		$post_types = static::post_types( static::get_config('post_types_all'), static::get_config('post_types_includes'), static::get_config('post_types_excludes') );
+		$post_types = static::post_types( static::get_config('post_types_all'), (array) static::get_config('post_types_includes'), (array) static::get_config('post_types_excludes') );
 		foreach ( $post_types as $post_type ) {
 			add_meta_box(
 				static::get_config('id'),

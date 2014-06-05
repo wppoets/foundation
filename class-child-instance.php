@@ -151,7 +151,7 @@ abstract class Child_Instance extends Instance {
 			$post_types = get_post_types( array( 'public' => TRUE ), 'names' );
 		}
 		$post_types = array_unique( $post_types );
-		foreach( $excludes as $exclude ) {
+		foreach( (array) $excludes as $exclude ) {
 			$matched_key = array_search( $exclude, $post_types );
 			if( ! empty( $matched_key ) ) {
 				unset( $post_types[ $matched_key] ); //Remove the excluded post type
@@ -174,21 +174,4 @@ abstract class Child_Instance extends Instance {
 		}
 	}
 
-	/**
-	 * Method for enqueuing scripts
-	 * 
-	 * @return string Returns the root instance name
-	 */
-	static public function enqueue_scripts() {
-		
-	}
-
-	/**
-	 * Method for enqueuing styles
-	 * 
-	 * @return string Returns the root instance name
-	 */
-	static public function enqueue_styles() {
-
-	}
 }

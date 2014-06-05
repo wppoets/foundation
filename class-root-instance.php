@@ -82,7 +82,7 @@ abstract class Root_Instance extends Instance {
 				static::init_array_of_classes( $config::get_admin_page() );
 			}
 			if ( static::get_config('enable_meta_boxes') ) {
-				static::init_array_of_classes( $config::get_admin_meta_box() );
+				static::init_array_of_classes( $config::get_meta_box() );
 			}
 			static::init_admin();
 		} else {
