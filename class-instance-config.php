@@ -61,66 +61,82 @@ abstract class Instance_Config extends Static_Config {
 		} 
 		switch( $verb ) { 
 			case 'add':
-				if ( empty( $arguments[0] ) ) {
+				$add_class = isset($arguments[0]) ? ltrim( $arguments[0], '\\' ) : NULL;
+				$instance_class = isset($arguments[1]) ? ltrim( $arguments[1], '\\' ) : NULL;
+				if ( empty( $add_class ) ) {
 					return;
 				}
-				$values = $is_global_group ? $config::get( 'config__' . $group ) : $config::get( 'config__' . $group, $arguments[1] );
+				if ( $is_instance_group && empty( $instance_class ) ) {
+					return; // TODO trigger an error or notice?
+				}
+				$values = $is_global_group ? $config::get( 'config__' . $group ) : $config::get( 'config__' . $group, $instance_class );
 				if ( ! is_array( $values ) ) {
 					$values = array();
 				}
-				if ( ! in_array( $arguments[0], $values ) ) {
-					$values[] = $arguments[0];
-					$is_global_group ? $config::set( 'config__' . $group, $values ) : $config::set( 'config__' . $group, $values, $arguments[1] );
+				if ( ! in_array( $add_class, $values ) ) {
+					$values[] = $add_class;
+					$is_global_group ? $config::set( 'config__' . $group, $values ) : $config::set( 'config__' . $group, $values, $instance_class );
 				}
-				return $arguments[0];
-				break;
-			case 'config':
-				if ( empty( $arguments[0] ) ) {
-					return;
-				}
-				if ( $is_instance_group ) {
-					return FALSE; // TODO: need to return a warning, sense you cant set config options to an instance group
-				}
-				if ( empty( $arguments[2] ) ) {
-					return FALSE; // TODO: return required field missing error?
-				}
-				$config::set( $arguments[1], $arguments[2], $arguments[0] );
-				return TRUE;
+				return $add_class;
 				break;
 			case 'remove':
-				$values = $is_global_group ? $config::get( 'config__' . $group ) : $config::get( 'config__' . $group, $arguments[1] );
+				$remove_class = isset($arguments[0]) ? ltrim( $arguments[0], '\\' ) : NULL;
+				$instance_class = isset($arguments[1]) ? ltrim( $arguments[1], '\\' ) : NULL;
+				if ( empty( $remove_class ) ) {
+					return;
+				}
+				if ( $is_instance_group && empty( $instance_class ) ) {
+					return; // TODO trigger an error or notice?
+				}
+				$values = $is_global_group ? $config::get( 'config__' . $group ) : $config::get( 'config__' . $group, $instance_class );
 				if ( ! is_array( $values ) ) {
 					return;
 				}
-				$remove_key = array_search($arguments[0], $values);
+				$remove_key = array_search($remove_class, $values);
 				if ( $remove_key !== FALSE && $remove_key !== NULL ) {
 					unset( $values[ $remove_key ] );
 					$values = array_values( $values );
-					$is_global_group ? $config::set( 'config__' . $group, $values ) : $config::set( 'config__' . $group, $values, $arguments[1] );
+					$is_global_group ? $config::set( 'config__' . $group, $values ) : $config::set( 'config__' . $group, $values, $instance_class );
 				}
 				return;
 				break;
+			case 'config':
+				$config_class = isset($arguments[0]) ? ltrim( $arguments[0], '\\' ) : NULL;
+				$config_key = isset($arguments[1]) ? $arguments[1] : NULL;
+				$config_value = isset($arguments[2]) ? $arguments[2] : NULL;
+				$instance_class = isset($arguments[3]) ? ltrim( $arguments[3], '\\' ) : NULL;
+				if ( empty( $config_class ) || empty( $config_key ) ) {
+					return; // TODO: trigger a warning? or error
+				}
+				if ( $is_instance_group && empty( $instance_class ) ) {
+					return; // TODO trigger an error or notice?
+				}
+				$config::set( $config_key, $config_value, $config_class );
+				return TRUE;
+				break;
 			case 'get':
-				$values = $is_global_group ? $config::get( 'config__' . $group ) : $config::get( 'config__' . $group, $arguments[1] );
+				$instance_class = isset($arguments[0]) ? ltrim( $arguments[0], '\\' ) : NULL;
+				if ( $is_instance_group && empty( $instance_class ) ) {
+					return; // TODO trigger an error or notice?
+				}
+				$values = $is_global_group ? $config::get( 'config__' . $group ) : $config::get( 'config__' . $group, $instance_class );
 				if ( ! is_array( $values ) ) {
 					$values = array();
 				}
 				return $values;
 				break;
 			case 'set':
-				if ( empty( $arguments[0] ) ) {
-					return;
-				}
-				if ( empty( $arguments[1] ) ) {
+				$values = isset($arguments[0]) ? ltrim( $arguments[0], '\\' ) : NULL;
+				$instance_class = isset($arguments[1]) ? ltrim( $arguments[1], '\\' ) : NULL;
+				if ( empty( $values ) || ! is_array( $values ) ) {
 					return FALSE; // TODO: return required field missing error?
 				}
-				if ( ! is_array( $arguments[0] ) ) {
-					return FALSE; // TODO: return must be an array error?
+				if ( $is_instance_group && empty( $instance_class ) ) {
+					return; // TODO trigger an error or notice?
 				}
-				$is_global_group ? $config::set( 'config__' . $group, $arguments[0] ) : $config::set( 'config__' . $group, $arguments[0], $arguments[1] );
+				$is_global_group ? $config::set( 'config__' . $group, $values ) : $config::set( 'config__' . $group, $values, $instance_class );
 				break;
 		}
 	}
-
 
 }
