@@ -105,9 +105,8 @@ abstract class Instance extends Static_Class {
 	 * @return void No return value
 	 */
 	static public function enqueue_scripts() {
-		$items = static::get_config( 'scripts' );
-		foreach ( (array) $items as $key => $array_value ) {
-			$item = &$items[ $key ];
+		$items = (array) static::get_config( 'scripts' );
+		foreach ( $items as $key => &$item ) {
 			if ( empty( $item['url'] ) && ! empty( $item['ezurl'] ) ) {
 				$item['url'] = static::get_config('base_scripts_url') . $item['ezurl'] . static::get_config('extension_js');
 			}
@@ -124,7 +123,7 @@ abstract class Instance extends Static_Class {
 				wp_register_script( $item['id'], $item['url'], $item['requires'], $item['version'] );
 			}
 		}
-		foreach ( (array) $items as $item ) {
+		foreach ( $items as &$item ) {
 			if ( ! wp_script_is( $item[ 'id' ], 'enqueued' ) ) {
 				wp_enqueue_script( $item[ 'id' ] );
 			}
@@ -139,9 +138,8 @@ abstract class Instance extends Static_Class {
 	 * @return void No return value
 	 */
 	static public function enqueue_styles() {
-		$items = static::get_config( 'styles' );
-		foreach ( (array) $items as $key => $array_value ) {
-			$item = &$items[ $key ];
+		$items = (array) static::get_config( 'styles' );
+		foreach ( $items as $key => &$item ) {
 			if ( empty( $item['url'] ) && ! empty( $item['ezurl'] ) ) {
 				$item['url'] = static::get_config('base_styles_url') . $item['ezurl'] . static::get_config('extension_css');
 			}
@@ -158,7 +156,7 @@ abstract class Instance extends Static_Class {
 				wp_register_style( $item['id'], $item['url'], $item['requires'], $item['version'] );
 			}
 		}
-		foreach ( (array) $items as $item ) {
+		foreach ( $items as &$item ) {
 			if ( ! wp_style_is( $item[ 'id' ], 'enqueued' ) ) {
 				wp_enqueue_style( $item[ 'id' ] );
 			}
