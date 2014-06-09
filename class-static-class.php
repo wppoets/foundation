@@ -296,4 +296,27 @@ abstract class Static_Class {
 		return $config::get_default( $key );
 	}
 
+	/**
+	 * 
+	 */
+	static public function append_config( $key, $value, $instance = NULL ) {
+		$config = static::get_config_instance();
+		$is_global_config = FALSE;
+		if ( empty( $instance ) ) {
+			$instance = static::current_instance();
+		} else if ( $instance === TRUE ) {
+			$is_global_config = TRUE;
+		}
+		$current_values = $is_global_config ? $config::get( $key ) : $config::get( $key, $instance );
+		if ( empty( $current_values ) ) {
+			$current_values = array();
+		}
+		$current_values = (array) $current_values; // In the off chance the value was not an array cast it now
+		if ( is_array( $value ) || is_object( $value ) ) { // If the value an object or array just add append to the current values
+			$current_values[] = $value;
+		} else if ( ! in_array( $value, $current_values ) ) { // Check to see if the value we are saving is already in the array
+			$current_values[] = $value;
+		}
+		return $is_global_config ? $config::set( $key, $current_values ) : $config::set( $key, $current_values, $instance );
+	}
 }

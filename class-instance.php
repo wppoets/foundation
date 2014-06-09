@@ -48,6 +48,8 @@ abstract class Instance extends Static_Class {
 		static::set_default_config( 'enable_ajax', FALSE );
 		static::set_default_config( 'enable_scripts', FALSE );
 		static::set_default_config( 'enable_styles', FALSE );
+		static::set_default_config( 'scripts', array() );
+		static::set_default_config( 'styles', array() );
 	}
 
 	/**
@@ -103,31 +105,28 @@ abstract class Instance extends Static_Class {
 	 * @return void No return value
 	 */
 	static public function enqueue_scripts() {
-		$scripts = array(); //TODO: pull the correct data and do seomthine!
-		foreach ( (array) $scripts as $script_id => $script ) {
-			$url = '';
-			if ( ! empty( $script['url'] ) ) {
-				$url = $script['url'];
-			} else if ( ! empty( $script['ezurl'] ) ) {
-				$url = static::get_config('base_scripts_url') . $script['ezurl'] . static::get_config('extension_js');
+		$items = static::get_config( 'scripts' );
+		foreach ( (array) $items as $key => $array_value ) {
+			$item = &$items[ $key ];
+			if ( empty( $item['url'] ) && ! empty( $item['ezurl'] ) ) {
+				$item['url'] = static::get_config('base_scripts_url') . $item['ezurl'] . static::get_config('extension_js');
 			}
-			if ( ! empty( $url ) ) {
-				$requires = empty( $script['requires'] ) ? NULL : $script['requires'];
-				$version = empty( $script['version'] ) ? static::get_config('asset_version') : $script['version'];
-				if ( ! is_admin() && ! empty( $script['replace_existing'] ) ) { //Wordpress has checks for removing things in the admin so not going to bother
-					wp_deregister_script( $script_id );
-				} 
-				if ( ! wp_script_is( $script_id, 'registered' ) ) {
-					wp_register_script( $script_id, $url, $requires, $version );
-				}
-				unset( $requires, $version );
-			} else {
-				unset( $scripts[ $script_id ] ); //No url was given so remomving it from the list
+			if ( empty( $item['url'] ) ) {
+				unset( $item, $items[ $key ] ); //No url was given so remomving it from the list
+			}
+			$item[ 'id' ] = empty( $item[ 'id' ] ) ? md5( $item['url'] ) : $item[ 'id' ];
+			$item['requires'] = empty( $item['requires'] ) ? NULL : $item['requires'];
+			$item['version'] = empty( $item['version'] ) ? static::get_config('asset_version') : $item['version'];
+			if ( ! is_admin() && ! empty( $item['replace_existing'] ) ) { //Wordpress has checks for removing things in the admin so not going to bother
+				wp_deregister_script( $item[ 'id' ] );
+			} 
+			if ( ! wp_script_is( $item['id'], 'registered' ) ) {
+				wp_register_script( $item['id'], $item['url'], $item['requires'], $item['version'] );
 			}
 		}
-		foreach ( (array) $scripts as $script_id => $script ) {
-			if ( ! wp_script_is( $script_id, 'enqueued' ) ) {
-				wp_enqueue_script( $script_id );
+		foreach ( (array) $items as $item ) {
+			if ( ! wp_script_is( $item[ 'id' ], 'enqueued' ) ) {
+				wp_enqueue_script( $item[ 'id' ] );
 			}
 		}
 	}
@@ -140,32 +139,28 @@ abstract class Instance extends Static_Class {
 	 * @return void No return value
 	 */
 	static public function enqueue_styles() {
-		$styles = array();
-		foreach ( (array) $styles as $style_id => $style ) {
-			$url = '';
-			if ( ! empty( $style['url'] ) ) {
-				$url = $style['url'];
-			} else if ( ! empty( $style['ezurl'] ) ) {
-				$url = static::get_config('base_styles_url') . $style['ezurl'] . static::get_config('extension_css');
+		$items = static::get_config( 'styles' );
+		foreach ( (array) $items as $key => $array_value ) {
+			$item = &$items[ $key ];
+			if ( empty( $item['url'] ) && ! empty( $item['ezurl'] ) ) {
+				$item['url'] = static::get_config('base_styles_url') . $item['ezurl'] . static::get_config('extension_css');
 			}
-			if ( ! empty( $url ) ) {
-				$requires = empty( $style['requires'] ) ? NULL : $style['requires'];
-				$version = empty( $style['version'] ) ? static::get_config('asset_version') : $style['version'];
-				if ( ! is_admin() && ! empty( $style['replace_existing'] ) ) { //Wordpress has checks for removing things in the admin so not going to bother
-					wp_deregister_style( $style_id );
-				} 
-				if ( ! wp_style_is( $style_id, 'registered' ) ) {
-					wp_register_style( $style_id, $url, $requires, $version );
-				}
-				unset( $requires, $version );
-			} else {
-				unset( $scripts[ $style_id ] ); //No url was given so remomving it from the list
+			if ( empty( $item['url'] ) ) {
+				unset( $item, $items[ $key ] ); //No url was given so remomving it from the list
 			}
-			unset( $url );
+			$item[ 'id' ] = empty( $item[ 'id' ] ) ? md5( $item['url'] ) : $item[ 'id' ];
+			$item['requires'] = empty( $item['requires'] ) ? NULL : $item['requires'];
+			$item['version'] = empty( $item['version'] ) ? static::get_config('asset_version') : $item['version'];
+			if ( ! is_admin() && ! empty( $item['replace_existing'] ) ) { //Wordpress has checks for removing things in the admin so not going to bother
+				wp_deregister_style( $item[ 'id' ] );
+			} 
+			if ( ! wp_style_is( $item['id'], 'registered' ) ) {
+				wp_register_style( $item['id'], $item['url'], $item['requires'], $item['version'] );
+			}
 		}
-		foreach ( (array) $styles as $style_id => $style ) {
-			if ( ! wp_style_is( $style_id, 'enqueued' ) ) {
-				wp_enqueue_style( $style_id );
+		foreach ( (array) $items as $item ) {
+			if ( ! wp_style_is( $item[ 'id' ], 'enqueued' ) ) {
+				wp_enqueue_style( $item[ 'id' ] );
 			}
 		}
 	}

@@ -28,6 +28,13 @@ abstract class Root_Instance extends Instance {
 	 */
 	static public function init_config() {
 		parent::init_config();
+		//Global default config
+		static::set_default_config( 'shortcodes', array(), TRUE );
+		static::set_default_config( 'content_types', array(), TRUE );
+		static::set_default_config( 'admin_sections', array(), TRUE );
+		static::set_default_config( 'admin_pages', array(), TRUE );
+		static::set_default_config( 'meta_boxes', array(), TRUE );
+		//Local default config
 		static::set_default_config( 'enable_shortcodes_in_text_widget', FALSE );
 		static::set_default_config( 'enable_admin_sections', FALSE );
 		static::set_default_config( 'enable_admin_pages', FALSE );
@@ -39,6 +46,7 @@ abstract class Root_Instance extends Instance {
 		static::set_default_config( 'enable_action_wp_head', FALSE );
 		static::set_default_config( 'enable_filter_wp_title', FALSE );
 		static::set_default_config( 'filter_wp_title_priority', 10 );
+
 	}
 
 	/**
@@ -65,22 +73,21 @@ abstract class Root_Instance extends Instance {
 			add_filter( 'widget_text', 'do_shortcode');
 		}
 
-		$config = static::get_config_instance();
 		if ( static::get_config('enable_shortcodes') ) {
-			static::init_array_of_classes( $config::get_shortcode() );
+			static::init_array_of_classes( static::get_config('shortcodes') );
 		}
 		if ( static::get_config('enable_content_types') ) {
-			static::init_array_of_classes( $config::get_content_type() );
+			static::init_array_of_classes( static::get_config('content_types') );
 		}
 		if ( is_admin() ) {
 			if ( static::get_config('enable_admin_sections') ) {
-				static::init_array_of_classes( $config::get_admin_section() );
+				static::init_array_of_classes( static::get_config('admin_section') );
 			}
 			if ( static::get_config('enable_admin_pages') ) {
-				static::init_array_of_classes( $config::get_admin_page() );
+				static::init_array_of_classes( static::get_config('admin_pages') );
 			}
 			if ( static::get_config('enable_meta_boxes') ) {
-				static::init_array_of_classes( $config::get_meta_box() );
+				static::init_array_of_classes( static::get_config('meta_boxes') );
 			}
 			static::init_admin();
 		} else {
