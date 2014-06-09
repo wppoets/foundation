@@ -28,13 +28,11 @@ abstract class Plugin extends Root_Instance {
 	 */
 	static public function init_config() {
 		parent::init_config();
-		$config = static::get_config_instance();
-		$current_instance = static::current_instance();
-		$config::set_default( 'enable_admin_sections', FALSE, $current_instance );
-		$config::set_default( 'enable_admin_pages', FALSE, $current_instance );
-		$config::set_default( 'enable_content_types', FALSE, $current_instance );
-		$config::set_default( 'enable_meta_boxes', FALSE, $current_instance );
-		$config::set_default( 'enable_shortcodes', FALSE, $current_instance );
+		static::set_default_config( 'enable_admin_sections', FALSE );
+		static::set_default_config( 'enable_admin_pages', FALSE );
+		static::set_default_config( 'enable_content_types', FALSE );
+		static::set_default_config( 'enable_meta_boxes', FALSE );
+		static::set_default_config( 'enable_shortcodes', FALSE );
 	}
 
 }

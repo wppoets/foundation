@@ -28,17 +28,15 @@ abstract class Meta_Box extends Child_Instance {
 	 */
 	static public function init_config() {
 		parent::init_config();
-		$current_instance = static::current_instance();
-		$config = static::get_config_instance();
-		$config::set_default( 'display_title', '', $current_instance );
-		$config::set_default( 'display_content', 'advanced', $current_instance ); //('normal', 'advanced', or 'side')
-		$config::set_default( 'display_priority', 'default', $current_instance ); //('high', 'core', 'default' or 'low')
-		$config::set_default( 'post_types_includes', array(), $current_instance );
-		$config::set_default( 'post_types_excludes', array(), $current_instance );
-		$config::set_default( 'post_types_all', FALSE, $current_instance );
-		$config::set_default( 'enable_enqueue_media', FALSE, $current_instance );
-		$config::set_default( 'enable_admin_footer', FALSE, $current_instance );
-		$config::set_default( 'enable_admin_init', FALSE, $current_instance );
+		static::set_default_config( 'display_title', '' );
+		static::set_default_config( 'display_content', 'advanced' ); //('normal', 'advanced', or 'side')
+		static::set_default_config( 'display_priority', 'default' ); //('high', 'core', 'default' or 'low')
+		static::set_default_config( 'post_types_includes', array() );
+		static::set_default_config( 'post_types_excludes', array() );
+		static::set_default_config( 'post_types_all', FALSE );
+		static::set_default_config( 'enable_enqueue_media', FALSE );
+		static::set_default_config( 'enable_admin_footer', FALSE );
+		static::set_default_config( 'enable_admin_init', FALSE );
 	}
 
 	/**

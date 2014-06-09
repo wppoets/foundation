@@ -28,15 +28,13 @@ abstract class Theme extends Root_Instance {
 	 */
 	static public function init_config() {
 		parent::init_config();
-		$config = static::get_config_instance();
-		$current_instance = static::current_instance();
-		$config::set_default( 'nav_menus', array(), $current_instance );
-		$config::set_default( 'sidebars', array(), $current_instance );
-		$config::set_default( 'enable_nav_menus', FALSE, $current_instance );
-		$config::set_default( 'enable_sidebars', FALSE, $current_instance );
-		$config::set_default( 'enable_theme_post_thumbnails', FALSE, $current_instance );
-		$config::set_default( 'enable_action_after_switch_theme', FALSE, $current_instance );
-		$config::set_default( 'disable_admin_bar_spacing_bug', FALSE, $current_instance );
+		static::set_default_config( 'nav_menus', array() );
+		static::set_default_config( 'sidebars', array() );
+		static::set_default_config( 'enable_nav_menus', FALSE );
+		static::set_default_config( 'enable_sidebars', FALSE );
+		static::set_default_config( 'enable_theme_post_thumbnails', FALSE );
+		static::set_default_config( 'enable_action_after_switch_theme', FALSE );
+		static::set_default_config( 'disable_admin_bar_spacing_bug', FALSE );
 	}
 
 	/**

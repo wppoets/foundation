@@ -28,19 +28,17 @@ abstract class Root_Instance extends Instance {
 	 */
 	static public function init_config() {
 		parent::init_config();
-		$config = static::get_config_instance();
-		$current_instance = static::current_instance();
-		$config::set_default( 'enable_shortcodes_in_text_widget', FALSE, $current_instance );
-		$config::set_default( 'enable_admin_sections', FALSE, $current_instance );
-		$config::set_default( 'enable_admin_pages', FALSE, $current_instance );
-		$config::set_default( 'enable_content_types', FALSE, $current_instance );
-		$config::set_default( 'enable_meta_boxes', FALSE, $current_instance );
-		$config::set_default( 'enable_shortcodes', FALSE, $current_instance );
-		$config::set_default( 'enable_link_manager', FALSE, $current_instance );
-		$config::set_default( 'enable_action_init', FALSE, $current_instance );
-		$config::set_default( 'enable_action_wp_head', FALSE, $current_instance );
-		$config::set_default( 'enable_filter_wp_title', FALSE, $current_instance );
-		$config::set_default( 'filter_wp_title_priority', 10, $current_instance );
+		static::set_default_config( 'enable_shortcodes_in_text_widget', FALSE );
+		static::set_default_config( 'enable_admin_sections', FALSE );
+		static::set_default_config( 'enable_admin_pages', FALSE );
+		static::set_default_config( 'enable_content_types', FALSE );
+		static::set_default_config( 'enable_meta_boxes', FALSE );
+		static::set_default_config( 'enable_shortcodes', FALSE );
+		static::set_default_config( 'enable_link_manager', FALSE );
+		static::set_default_config( 'enable_action_init', FALSE );
+		static::set_default_config( 'enable_action_wp_head', FALSE );
+		static::set_default_config( 'enable_filter_wp_title', FALSE );
+		static::set_default_config( 'filter_wp_title_priority', 10 );
 	}
 
 	/**

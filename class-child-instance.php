@@ -31,16 +31,14 @@ abstract class Child_Instance extends Instance {
 	 */
 	static public function init_config() {
 		parent::init_config();
-		$current_instance = static::current_instance();
-		$config = static::get_config_instance();
-		$config::set_default( 'root_instance', '', $current_instance );
-		$config::set_default( 'enable_save_post', FALSE, $current_instance );
-		$config::set_default( 'enable_save_post_nonce_check', FALSE, $current_instance );
-		$config::set_default( 'enable_save_post_autosave_check', FALSE, $current_instance );
-		$config::set_default( 'enable_save_post_revision_check', FALSE, $current_instance );
-		$config::set_default( 'enable_save_post_check_capabilities_check', FALSE, $current_instance );
-		$config::set_default( 'enable_save_post_single_run', FALSE, $current_instance );
-		$config::set_default( 'save_post_check_capabilities',array(), $current_instance );
+		static::set_default_config( 'root_instance', '' );
+		static::set_default_config( 'enable_save_post', FALSE );
+		static::set_default_config( 'enable_save_post_nonce_check', FALSE );
+		static::set_default_config( 'enable_save_post_autosave_check', FALSE );
+		static::set_default_config( 'enable_save_post_revision_check', FALSE );
+		static::set_default_config( 'enable_save_post_check_capabilities_check', FALSE );
+		static::set_default_config( 'enable_save_post_single_run', FALSE );
+		static::set_default_config( 'save_post_check_capabilities',array() );
 	}
 
 	/**

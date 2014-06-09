@@ -28,26 +28,26 @@ abstract class Instance extends Static_Class {
 	 */
 	static public function init_config() {
 		parent::init_config();
-		$current_instance = static::current_instance();
-		$config = static::get_config_instance();
-		$config::set_default( 'text_domain', '' );
-		$config::set_default( 'asset_version', NULL );
-		$config::set_default( 'base_url', '' );
-		$config::set_default( 'base_scripts_url', '' );
-		$config::set_default( 'base_styles_url', '' );
-		$config::set_default( 'extension_js', '.js' );
-		$config::set_default( 'extension_css', '.css' );
-		$config::set_default( 'meta_key_prefix', '' );
-		$config::set_default( 'option_key', '' );
-		$config::set_default( 'option_autoload', FALSE );
-		$config::set_default( 'id', '', $current_instance ); //Default is empty, this should always be set!
-		$config::set_default( 'html_form_prefix', '', $current_instance ); // should only use [a-z0-9_-]
-		$config::set_default( 'html_class_prefix', '', $current_instance ); // should only use [a-z0-9_-]
-		$config::set_default( 'html_id_prefix', '', $current_instance ); // should only use [a-z0-9_-]
-		$config::set_default( 'ajax_suffix', '', $current_instance ); // should only use [a-z0-9_-]
-		$config::set_default( 'enable_ajax', FALSE, $current_instance );
-		$config::set_default( 'enable_scripts', FALSE, $current_instance );
-		$config::set_default( 'enable_styles', FALSE, $current_instance );
+		//Global config
+		static::set_default_config( 'text_domain', '', TRUE );
+		static::set_default_config( 'asset_version', NULL, TRUE );
+		static::set_default_config( 'base_url', '', TRUE );
+		static::set_default_config( 'base_scripts_url', '', TRUE );
+		static::set_default_config( 'base_styles_url', '', TRUE );
+		static::set_default_config( 'extension_js', '.js', TRUE );
+		static::set_default_config( 'extension_css', '.css', TRUE );
+		static::set_default_config( 'meta_key_prefix', '', TRUE );
+		static::set_default_config( 'option_key', '', TRUE );
+		static::set_default_config( 'option_autoload', FALSE, TRUE );
+		//Local config
+		static::set_default_config( 'id', '' ); //Default is empty, this should always be set!
+		static::set_default_config( 'html_form_prefix', '' ); // should only use [a-z0-9_-]
+		static::set_default_config( 'html_class_prefix', '' ); // should only use [a-z0-9_-]
+		static::set_default_config( 'html_id_prefix', '' ); // should only use [a-z0-9_-]
+		static::set_default_config( 'ajax_suffix', '' ); // should only use [a-z0-9_-]
+		static::set_default_config( 'enable_ajax', FALSE );
+		static::set_default_config( 'enable_scripts', FALSE );
+		static::set_default_config( 'enable_styles', FALSE );
 	}
 
 	/**

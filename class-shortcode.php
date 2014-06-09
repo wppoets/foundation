@@ -28,10 +28,8 @@ abstract class Shortcode extends Child_Instance {
 	 */
 	static public function init_config() {
 		parent::init_config();
-		$config = static::get_config_instance();
-		$current_instance = static::current_instance();
-		$config::set_default( 'short_code_tag', '', $current_instance );
-		$config::set_default( 'enable_filter_atts', FALSE, $current_instance );
+		static::set_default_config( 'short_code_tag', '' );
+		static::set_default_config( 'enable_filter_atts', FALSE );
 	}
 
 	/**

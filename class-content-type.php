@@ -28,35 +28,33 @@ abstract class Content_Type extends Child_Instance {
 	 */
 	static public function init_config() {
 		parent::init_config();
-		$current_instance = static::current_instance();
-		$config = static::get_config_instance();
-		$config::set_default( 'post_type', '', $current_instance );
-		$config::set_default( 'post_type_args', array(), $current_instance );
-		$config::set_default( 'post_type_lables', array(), $current_instance );
-		$config::set_default( 'post_type_name_single', '', $current_instance );
-		$config::set_default( 'post_type_name_plural', '', $current_instance );
-		$config::set_default( 'post_type_description', '', $current_instance );
-		$config::set_default( 'post_type_is_public', FALSE, $current_instance );
-		$config::set_default( 'post_type_exclude_from_search', TRUE, $current_instance );
-		$config::set_default( 'post_type_publicly_queryable', $config::get_default( 'post_type_is_public', $current_instance ), $current_instance );
-		$config::set_default( 'post_type_show_ui', $config::get_default( 'post_type_is_public', $current_instance ), $current_instance );
-		$config::set_default( 'post_type_show_in_nav_menus', $config::get_default( 'post_type_is_public', $current_instance ), $current_instance );
-		$config::set_default( 'post_type_show_in_menus', $config::get_default( 'post_type_show_ui', $current_instance ), $current_instance );
-		$config::set_default( 'post_type_show_in_admin_bar', $config::get_default( 'post_type_show_in_menus', $current_instance ), $current_instance );
-		$config::set_default( 'post_type_menu_position', NULL, $current_instance );
-		$config::set_default( 'post_type_menu_icon', NULL, $current_instance );
-		$config::set_default( 'post_type_capability', 'post', $current_instance );
-		$config::set_default( 'post_type_map_meta_cap', TRUE, $current_instance );
-		$config::set_default( 'post_type_hierarchical', FALSE, $current_instance );
-		$config::set_default( 'post_type_supports', array('title','editor'), $current_instance );
-		$config::set_default( 'post_type_taxonomies', array(), $current_instance );
-		$config::set_default( 'post_type_has_archive', FALSE, $current_instance );
-		$config::set_default( 'post_type_permalink_epmask', EP_PERMALINK, $current_instance );
-		$config::set_default( 'post_type_query_var', $config::get_default( 'post_type', $current_instance ), $current_instance );
-		$config::set_default( 'post_type_can_export', TRUE, $current_instance );
-		$config::set_default( 'disable_quick_edit', FALSE, $current_instance );
-		$config::set_default( 'enable_cascade_delete', FALSE, $current_instance );
-		$config::set_default( 'enable_dashboard_item_count', FALSE, $current_instance );
+		static::set_default_config( 'post_type', '' );
+		static::set_default_config( 'post_type_args', array() );
+		static::set_default_config( 'post_type_lables', array() );
+		static::set_default_config( 'post_type_name_single', '' );
+		static::set_default_config( 'post_type_name_plural', '' );
+		static::set_default_config( 'post_type_description', '' );
+		static::set_default_config( 'post_type_is_public', FALSE );
+		static::set_default_config( 'post_type_exclude_from_search', TRUE );
+		static::set_default_config( 'post_type_publicly_queryable', static::get_default_config( 'post_type_is_public' ) );
+		static::set_default_config( 'post_type_show_ui', static::get_default_config( 'post_type_is_public' ) );
+		static::set_default_config( 'post_type_show_in_nav_menus', static::get_default_config( 'post_type_is_public' ) );
+		static::set_default_config( 'post_type_show_in_menus', static::get_default_config( 'post_type_show_ui' ) );
+		static::set_default_config( 'post_type_show_in_admin_bar', static::get_default_config( 'post_type_show_in_menus' ) );
+		static::set_default_config( 'post_type_menu_position', NULL );
+		static::set_default_config( 'post_type_menu_icon', NULL );
+		static::set_default_config( 'post_type_capability', 'post' );
+		static::set_default_config( 'post_type_map_meta_cap', TRUE );
+		static::set_default_config( 'post_type_hierarchical', FALSE );
+		static::set_default_config( 'post_type_supports', array('title','editor') );
+		static::set_default_config( 'post_type_taxonomies', array() );
+		static::set_default_config( 'post_type_has_archive', FALSE );
+		static::set_default_config( 'post_type_permalink_epmask', EP_PERMALINK );
+		static::set_default_config( 'post_type_query_var', static::get_default_config( 'post_type' ) );
+		static::set_default_config( 'post_type_can_export', TRUE );
+		static::set_default_config( 'disable_quick_edit', FALSE );
+		static::set_default_config( 'enable_cascade_delete', FALSE );
+		static::set_default_config( 'enable_dashboard_item_count', FALSE );
 	}
 
 	/**

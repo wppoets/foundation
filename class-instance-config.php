@@ -28,11 +28,11 @@ abstract class Instance_Config extends Static_Config {
 	 */
 	static public function init_config() {
 		parent::init_config();
-		$config = static::get_config_instance();
-		$config::set_default( 'text_domain', '' );
-		$config::set_default( 'asset_version', '' );
-		$config::set_default( 'config_group_type_global', array( 'admin_section', 'admin_page', 'content_type', 'meta_box', 'shortcode' ) );
-		$config::set_default( 'config_group_type_instance', array( 'scripts', 'styles' ) );
+		// Global config
+		static::set_default_config( 'text_domain', '', TRUE );
+		static::set_default_config( 'asset_version', '', TRUE );
+		static::set_default_config( 'config_group_type_global', array( 'admin_section', 'admin_page', 'content_type', 'meta_box', 'shortcode' ), TRUE );
+		static::set_default_config( 'config_group_type_instance', array( 'scripts', 'styles' ), TRUE );
 	}
 
 	static public function __callStatic( $name, $arguments ) {

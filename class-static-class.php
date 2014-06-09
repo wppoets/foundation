@@ -245,6 +245,8 @@ abstract class Static_Class {
 		$config = static::get_config_instance();
 		if ( empty( $instance ) ) {
 			$instance = static::current_instance();
+		} else if ( $instance === TRUE ) {
+			return $config::set( $key, $value ); // If instance is TRUE dont pass it (will default to global)
 		}
 		return $config::set( $key, $value, $instance );
 	}
@@ -256,10 +258,42 @@ abstract class Static_Class {
 		$config = static::get_config_instance();
 		if ( empty( $instance ) ) {
 			$instance = static::current_instance();
+		} else if ( $instance === TRUE ) {
+			return $config::get( $key ); // If instance is TRUE dont pass it (will default to global)
 		}
 		if ( $config::has( $key, $instance ) ){
 			return $config::get( $key, $instance );
 		} 
 		return $config::get( $key );
 	}
+
+	/**
+	 * 
+	 */
+	static public function set_default_config( $key, $value, $instance = NULL ) {
+		$config = static::get_config_instance();
+		if ( empty( $instance ) ) {
+			$instance = static::current_instance();
+		} else if ( $instance === TRUE ) {
+			return $config::set_default( $key, $value ); // If instance is TRUE dont pass it (will default to global)
+		}
+		return $config::set( $key, $value, $instance );
+	}
+
+	/**
+	 * 
+	 */
+	static public function get_default_config( $key, $instance = NULL ) {
+		$config = static::get_config_instance();
+		if ( empty( $instance ) ) {
+			$instance = static::current_instance();
+		} else if ( $instance === TRUE ) {
+			return $config::get_default( $key ); // If instance is TRUE dont pass it (will default to global)
+		}
+		if ( $config::has_default( $key, $instance ) ){
+			return $config::get_default( $key, $instance );
+		} 
+		return $config::get_default( $key );
+	}
+
 }

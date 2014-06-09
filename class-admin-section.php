@@ -28,11 +28,9 @@ abstract class Admin_Section extends Child_Instance {
 	 */
 	static public function init_config() {
 		parent::init_config();
-		$current_instance = static::current_instance();
-		$config = static::get_config_instance();
-		$config::set_default( 'enable_admin_footer', FALSE, $current_instance );
-		$config::set_default( 'enable_admin_menu', FALSE, $current_instance );
-		$config::set_default( 'enable_admin_init', FALSE, $current_instance );
+		static::set_default_config( 'enable_admin_footer', FALSE );
+		static::set_default_config( 'enable_admin_menu', FALSE );
+		static::set_default_config( 'enable_admin_init', FALSE );
 	}
 
 	/**
