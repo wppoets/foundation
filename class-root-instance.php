@@ -134,10 +134,8 @@ abstract class Root_Instance extends Instance {
 	 * @return void No return value
 	 */
 	static public function init_static_class( $class ) {
-		//static::debug( __METHOD__, array( $class, $config ) );
 		if ( class_exists( $class ) && method_exists( $class, 'init' ) ) {
-			$config = static::get_config_instance();
-			$config::set( 'root_instance', static::current_instance(), $class );
+			static::set_config( 'root_instance', static::current_instance(), $class );
 			$class::init();
 		} else {
 			static::error( __METHOD__, "Static class ( $class ) did not exists and or have the required init method", E_USER_WARNING );

@@ -55,6 +55,7 @@ abstract class Static_Config extends Static_Class {
 	 * $current_instance = static::current_instance();
 	 */
 	static public function set_default( $key, $value, $instance = 'global_instance' ) {
+		$instance = static::_normalize_instance( $instance ); 
 		if ( ! isset( self::$_defaults[ static::current_instance() ] ) ) {
 			self::$_defaults[ static::current_instance() ] = array();
 		}
@@ -68,6 +69,7 @@ abstract class Static_Config extends Static_Class {
 	 * 
 	 */
 	static public function get_default( $key, $instance = 'global_instance' ) {
+		$instance = static::_normalize_instance( $instance ); 
 		if ( static::has_default( $key, $instance ) ) {
 			return self::$_defaults[ static::current_instance() ][ $instance ][ $key ];
 		}
@@ -78,6 +80,7 @@ abstract class Static_Config extends Static_Class {
 	 * 
 	 */
 	static public function has_default( $key, $instance = 'global_instance' ) {
+		$instance = static::_normalize_instance( $instance ); 
 		return isset( self::$_defaults[ static::current_instance() ][ $instance ][ $key ] );
 	}
 
@@ -85,16 +88,20 @@ abstract class Static_Config extends Static_Class {
 	 * 
 	 */
 	static public function set( $key, $value, $instance = 'global_instance' ) {
+		//static::debug( __METHOD__, array( $key, $value, $instance ) );
+		$instance = static::_normalize_instance( $instance ); 
 		if ( ! isset( self::$_values[ static::current_instance() ][ $instance ] ) ) {
 			self::$_values[ static::current_instance() ][ $instance ] = array();
 		}
 		self::$_values[ static::current_instance() ][ $instance ][ $key ] = $value;
+		//static::debug( __METHOD__, self::$_values[ static::current_instance() ][ $instance ][ $key ] );
 	}
 
 	/**
 	 * 
 	 */
 	static public function get( $key, $instance = 'global_instance' ) {
+		$instance = static::_normalize_instance( $instance ); 
 		if ( static::has( $key, $instance ) ) {
 			return self::$_values[ static::current_instance() ][ $instance ][ $key ];
 		}
@@ -105,6 +112,7 @@ abstract class Static_Config extends Static_Class {
 	 * 
 	 */
 	static public function has( $key, $instance = 'global_instance' ) {
+		$instance = static::_normalize_instance( $instance ); 
 		return isset( self::$_values[ static::current_instance() ][ $instance ][ $key ] );
 	}
 
@@ -123,6 +131,7 @@ abstract class Static_Config extends Static_Class {
 	 * @return array Returns an array of missing keys to empty values
 	 */
 	static public function get_missing_required( $required, $instance = 'global_instance' ) {
+		$instance = static::_normalize_instance( $instance ); 
 		$required = (array) $required;
 		foreach ( $required as $id => $key ) {
 			$test_value_1 = static::get( $key, $instance );
@@ -154,4 +163,16 @@ abstract class Static_Config extends Static_Class {
 		return $return_array;
 	}
 
+	/**
+	 *
+	 */
+	static private function _normalize_instance( $value ) {
+		if ( empty ( $value ) ) {
+			return $value;
+		}
+		if ( is_string( $value ) ) {
+			$value = ltrim( $value, '\\' );
+		}
+		return $value;
+	}
 }

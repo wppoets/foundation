@@ -52,6 +52,7 @@ abstract class Content_Type extends Child_Instance {
 		static::set_default_config( 'post_type_permalink_epmask', EP_PERMALINK );
 		static::set_default_config( 'post_type_query_var', static::get_default_config( 'post_type' ) );
 		static::set_default_config( 'post_type_can_export', TRUE );
+		static::set_default_config( 'post_type_rewrite', array( 'slug' => static::get_config( 'post_type' ) ) );
 		static::set_default_config( 'disable_quick_edit', FALSE );
 		static::set_default_config( 'enable_cascade_delete', FALSE );
 		static::set_default_config( 'enable_dashboard_item_count', FALSE );
@@ -93,7 +94,7 @@ abstract class Content_Type extends Child_Instance {
 				'permalink_epmask'    => static::get_config( 'post_type_permalink_epmask' ),
 				'query_var'           => static::get_config( 'post_type_query_var' ),
 				'can_export'          => static::get_config( 'post_type_can_export' ),
-				'rewrite'             => array( 'slug' => static::get_config( 'post_type' ) ),
+				'rewrite'             => static::get_config( 'post_type_rewrite' ),
 			);
 			$post_args_changed = TRUE;
 		} else if ( ! empty( $post_args[ 'capability_type' ] ) ) {
