@@ -261,9 +261,9 @@ abstract class Static_Class {
 		} else if ( $instance === TRUE ) {
 			return $config::get( $key ); // If instance is TRUE dont pass it (will default to global)
 		}
-		if ( $config::has( $key, $instance ) ){
+		if ( $config::has( $key, $instance ) ||  $config::has_default( $key, $instance ) ){
 			return $config::get( $key, $instance );
-		} 
+		}
 		return $config::get( $key );
 	}
 
