@@ -81,7 +81,7 @@ abstract class Shortcode extends Child_Instance {
 				'slug' => '',
 			),
 			$atts,
-			static::shortcode_tag()
+			static::get_config( 'short_code_tag' )
 		) );
 		return $contents;
 	}
