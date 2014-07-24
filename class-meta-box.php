@@ -138,10 +138,11 @@ abstract class Meta_Box extends Child_Instance {
 	 * @return void No return value
 	 */
 	static public function action_save_post( $post_id ) {
+		return parent::action_save_post( $post_id );
 		//Holder
-		if ( ! parent::action_save_post( $post_id ) ) {
-			return;
-		}
+		//if ( ! parent::action_save_post( $post_id ) ) {
+		//	return;
+		//}
 	}
 
 }
